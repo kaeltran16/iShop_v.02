@@ -6,9 +6,9 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface IImagesRepository: IDataRepository<Image>
+    public interface IImagesRepository: IDataRepository<ImageEntity>
     {
-        Task<IEnumerable<Image>> GetProductImages(Guid productId);
-        Task<Image> Get(Guid id);
+        Task<IEnumerable<ImageEntity>> GetProductImages(Guid productId, bool isIncludeRelavtive);
+        Task<ImageEntity> Get(Guid id, bool isIncludeRelavtive);
     }
 }

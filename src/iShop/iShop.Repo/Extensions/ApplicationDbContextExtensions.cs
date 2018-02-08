@@ -1,5 +1,6 @@
 ﻿using System;
 using iShop.Data.Entities;
+using iShop.Data.Models;
 using iShop.Repo.EntityConfigurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

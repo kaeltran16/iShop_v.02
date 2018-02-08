@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using iShop.Data.Base;
 using Microsoft.AspNetCore.Identity;
 
 namespace iShop.Data.Entities
 {
-    public class ApplicationUser: IdentityUser<Guid>
+    public class ApplicationUserEntity: IdentityUser<Guid>, IEntityBase
     {
         public string FirstName { get; set; }      
         public string LastName { get; set; }
@@ -13,14 +14,14 @@ namespace iShop.Data.Entities
         public string Ward { get; set; }
         public string District { get; set; }
         public string City { get; set; }
-        public ICollection<ShoppingCart> ShoppingCarts { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<ShoppingCartEntity> ShoppingCarts { get; set; }
+        public ICollection<OrderEntity> Orders { get; set; }
 
-        public ApplicationUser()
+        public ApplicationUserEntity()
         {
             CreatedDate = DateTime.Now;
-            ShoppingCarts = new Collection<ShoppingCart>();
-            Orders = new Collection<Order>();
+            ShoppingCarts = new Collection<ShoppingCartEntity>();
+            Orders = new Collection<OrderEntity>();
         }
     }
 }

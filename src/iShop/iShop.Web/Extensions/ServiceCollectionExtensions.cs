@@ -4,6 +4,7 @@ using System.Text;
 using AspNet.Security.OpenIdConnect.Primitives;
 using iShop.Common.Helpers;
 using iShop.Data.Entities;
+using iShop.Data.Models;
 using iShop.Repo;
 using iShop.Repo.Data.Implementations;
 using iShop.Repo.Data.Interfaces;

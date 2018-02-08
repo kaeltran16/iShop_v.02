@@ -1,4 +1,5 @@
 ﻿using iShop.Data.Entities;
+using iShop.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

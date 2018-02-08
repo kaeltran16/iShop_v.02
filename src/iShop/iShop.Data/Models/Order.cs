@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using iShop.Data.Base;
 
-namespace iShop.Data.Entities
+namespace iShop.Data.Models
 {
-    public class Order : EntityBase
+    public class Order : KeyEntity, IModelBase
     {
-        public Guid? UserId { get; set; }
         public ApplicationUser User { get; set; }
 
         public Shipping Shipping { get; set; }

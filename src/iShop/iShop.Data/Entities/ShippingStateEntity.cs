@@ -1,6 +1,6 @@
 ﻿namespace iShop.Data.Entities
 {
-    public enum ShippingState
+    public enum ShippingStateEntity
     {
         None = 0,
         Shipped = 1,

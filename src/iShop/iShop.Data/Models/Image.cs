@@ -1,12 +1,11 @@
 ﻿using System;
 using iShop.Data.Base;
 
-namespace iShop.Data.Entities
+namespace iShop.Data.Models
 {
-    public class Image : EntityBase
+    public class Image : KeyEntity, IModelBase
     {
         public string FileName { get; set; }
-        public Guid ProductId { get; set; }
         public Product Product { get; set; }
     }
 }

@@ -9,8 +9,8 @@ namespace iShop.Repo.Mapping
 
         protected override void CreateMap()
         {
-            CreateMap<Image, ImageDto>();
-            CreateMap<ImageDto, Image>();
+            CreateMap<ImageEntity, ImageDto>();
+            CreateMap<ImageDto, ImageEntity>();
         }
     }
 }

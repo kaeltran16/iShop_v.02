@@ -2,9 +2,9 @@
 using System.Collections.ObjectModel;
 using iShop.Data.Base;
 
-namespace iShop.Data.Entities
+namespace iShop.Data.Models
 {
-    public class Supplier : EntityBase
+    public class Supplier : KeyEntity, IModelBase
     {
         public string Name { get; set; }
         public string Description { get; set; }

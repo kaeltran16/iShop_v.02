@@ -3,12 +3,12 @@ using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class Inventory: EntityBase
+    public class InventoryEntity: KeyEntity, IEntityBase
     {
         public Guid ProductId { get; set; }
-        public Product Product { get; set; }
+        public ProductEntity Product { get; set; }
         public Guid SupplierId { get; set; }
-        public Supplier Supplier { get; set; }
+        public SupplierEntity Supplier { get; set; }
         public int Stock { get; set; }
     }
 }

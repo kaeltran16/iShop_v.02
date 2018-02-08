@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
+using iShop.Data.Models;
 using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface ICategoryRepository: IDataRepository<Category>
+    public interface ICategoryRepository: IDataRepository<CategoryEntity>
     {
-        Task<Category> GetCategory(Guid id);
-        Task<IEnumerable<Category>> GetCategories();
+        Task<CategoryEntity> GetCategory(Guid id);
+        Task<IEnumerable<CategoryEntity>> GetCategories();
     }
 }
