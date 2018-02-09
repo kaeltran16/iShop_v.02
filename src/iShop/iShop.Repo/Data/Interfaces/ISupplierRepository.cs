@@ -6,10 +6,10 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface ISupplierRepository: IDataRepository<SupplierEntity>
+    public interface ISupplierRepository: IDataRepository<Supplier>
     {
-        Task<IEnumerable<SupplierEntity>> GetSuppliers();
-        Task<SupplierEntity> GetSupplier(Guid supplierId);
+        Task<IEnumerable<Supplier>> GetSuppliers();
+        Task<Supplier> GetSupplier(Guid supplierId);
 
     }
 }

@@ -6,9 +6,9 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface IShippingRepository : IDataRepository<ShippingEntity>
+    public interface IShippingRepository : IDataRepository<Shipping>
     {
-        Task<ShippingEntity> GetShipping(Guid id, bool isIncludeRelative = true);
-        Task<IEnumerable<ShippingEntity>> GetShippings(bool isIncludeRelative = true);
+        Task<Shipping> GetShipping(Guid id, bool isIncludeRelative = true);
+        Task<IEnumerable<Shipping>> GetShippings(bool isIncludeRelative = true);
     }
 }

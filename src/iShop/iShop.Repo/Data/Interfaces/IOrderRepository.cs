@@ -6,10 +6,10 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface IOrderRepository : IDataRepository<OrderEntity>
+    public interface IOrderRepository : IDataRepository<Order>
     {
-        Task<OrderEntity> GetOrder(Guid orderId, bool isIncludeRelative = true);
-        Task<IEnumerable<OrderEntity>> GetOrders(bool isIncludeRelative = true);
-        Task<IEnumerable<OrderEntity>> GetUserOrders(Guid userId, bool isIncludeRelative = true);
+        Task<Order> GetOrder(Guid orderId, bool isIncludeRelative = true);
+        Task<IEnumerable<Order>> GetOrders(bool isIncludeRelative = true);
+        Task<IEnumerable<Order>> GetUserOrders(Guid userId, bool isIncludeRelative = true);
     }
 }

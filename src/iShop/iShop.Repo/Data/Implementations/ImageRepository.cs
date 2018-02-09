@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace iShop.Repo.Data.Implementations
 {
-    public class ImageRepository: DataRepositoryBase<ImageEntity>, IImagesRepository
+    public class ImageRepository: DataRepositoryBase<Image>, IImagesRepository
     {
         public ImageRepository(ApplicationDbContext context)
             : base(context)
@@ -16,25 +16,25 @@ namespace iShop.Repo.Data.Implementations
             Context = context;
         }
 
-        public async Task<IEnumerable<ImageEntity>> GetProductImages(Guid productId, bool isIncludeRelavtive)
+        public async Task<IEnumerable<Image>> GetProductImages(Guid productId, bool isIncludeRelavtive)
         {
             var spec = 
                 isIncludeRelavtive       
-                    ? new Specification<ImageEntity>(predicate: i => i.ProductId == productId,
+                    ? new Specification<Image>(predicate: i => i.ProductId == productId,
                         includes: null)
-                    : new Specification<ImageEntity>(predicate: i => i.ProductId == productId,
+                    : new Specification<Image>(predicate: i => i.ProductId == productId,
                         includes: source => source.Include(i => i.Product));
 
             return await GetAllAsync(spec);
         }
 
-        public async Task<ImageEntity> Get(Guid id, bool isIncludeRelavtive)
+        public async Task<Image> Get(Guid id, bool isIncludeRelavtive)
         {
             var spec = 
                 isIncludeRelavtive       
-                    ? new Specification<ImageEntity>(predicate: i => i.Id == id,
+                    ? new Specification<Image>(predicate: i => i.Id == id,
                         includes: null)
-                    : new Specification<ImageEntity>(predicate: i => i.Id == id,
+                    : new Specification<Image>(predicate: i => i.Id == id,
                         includes: source => source.Include(i => i.Product));
 
             return await GetSingleAsync(spec);

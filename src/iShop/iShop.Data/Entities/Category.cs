@@ -4,16 +4,17 @@ using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class CategoryEntity : KeyEntity, IEntityBase
+    public class Category : KeyEntity, IEntityBase
     {
         public string Name { get; set; }
         public string Detail { get; set; }
         public string Short { get; set; }
-        public ICollection<ProductCategoryEntity> ProductCategories { get; set; }
+        public ICollection<ProductCategory> ProductCategories { get; set; }
+            = new Collection<ProductCategory>();
 
-        public CategoryEntity()
+        public Category()
         {
-            ProductCategories = new Collection<ProductCategoryEntity>();
+
         }
     }
 }

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace iShop.Repo.EntityConfigurations
 {
-    public class ImageConfigurations: IEntityTypeConfiguration<ImageEntity>
+    public class ImageConfigurations: IEntityTypeConfiguration<Image>
     {
-        public void Configure(EntityTypeBuilder<ImageEntity> builder)
+        public void Configure(EntityTypeBuilder<Image> builder)
         {
             builder.Property(i => i.ProductId).IsRequired();
             builder.Property(i => i.FileName).IsRequired();

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using iShop.Common.DTOs;
 using iShop.Data.Entities;
-using iShop.Data.Models;
 
 namespace iShop.Repo.Mapping
 {

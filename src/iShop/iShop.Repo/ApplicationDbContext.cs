@@ -1,6 +1,5 @@
 ﻿using System;
 using iShop.Data.Entities;
-using iShop.Data.Models;
 using iShop.Repo.Extensions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +14,7 @@ namespace iShop.Repo
         public DbSet<Cart> Carts { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<ImageEntity> Images { get; set; }
+        public DbSet<Image> Images { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
