@@ -7,7 +7,7 @@ namespace iShop.Repo.Data.Base
     public interface IDataRepository { }
 
     public interface IDataRepository<T> : IDataRepository
-        where T : class, IEntityBase, new()
+        where T : class, IEntityBase
     {
         Task<IEnumerable<T>> GetAllAsync(ISpecification<T> spec);
 

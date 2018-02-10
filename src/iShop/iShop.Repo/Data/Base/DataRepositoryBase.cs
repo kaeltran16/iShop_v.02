@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace iShop.Repo.Data.Base
 {
     public class DataRepositoryBase<T> : IDataRepository<T>
-        where T : class, IEntityBase, new()
+        where T : class, IEntityBase
     {
         protected ApplicationDbContext Context;
 
-        protected DataRepositoryBase(ApplicationDbContext context)
+        public DataRepositoryBase(ApplicationDbContext context)
         {
             Context = context;
         }

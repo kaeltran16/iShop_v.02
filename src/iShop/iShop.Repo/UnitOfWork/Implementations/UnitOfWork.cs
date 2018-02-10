@@ -1,4 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using iShop.Data.Base;
+using iShop.Repo.Data.Base;
 using iShop.Repo.Data.Implementations;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
@@ -8,43 +13,27 @@ namespace iShop.Repo.UnitOfWork.Implementations
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        private ICategoryRepository _categoryRepository;
-        private IProductRepository _productRepository;
-        private IShoppingCartRepository _shoppingCartRepository;
-        private IOrderRepository _orderRepository;
-        private ImageRepository _imageRepository;
-        private SupplierRepository _supplierRepository;
-        private ShippingRepository _shippingRepository;
-
+        private readonly Dictionary<Type, IDataRepository> _repositories;
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
+            _repositories = new Dictionary<Type, IDataRepository>();
         }
 
-        // Getter for repository interface. When call these getter, if the repository is null then create a new one
-        // otherwise return it
-        public ICategoryRepository CategoryRepository =>
-            _categoryRepository ?? (_categoryRepository = new CategoryRepository(_context));
-        public IProductRepository ProductRepository =>
-            _productRepository ?? (_productRepository = new ProductRepository(_context));
-        public IShoppingCartRepository ShoppingCartRepository =>
-            _shoppingCartRepository ?? (_shoppingCartRepository = new ShoppingCartRepository(_context));
-        public IOrderRepository OrderRepository =>
-            _orderRepository ?? (_orderRepository = new OrderRepository(_context));
 
-      
+        public TRepository GetRepository<TRepository>() 
+            where TRepository : class, IDataRepository
+        {
+            if (!_repositories.TryGetValue(typeof(TRepository), out var repository))
+            {
+                repository = (TRepository)Activator.CreateInstance(typeof(TRepository), _context);
 
-        public IImagesRepository ImageRepository =>
-            _imageRepository ?? (_imageRepository
-                = new ImageRepository(_context));
-        public ISupplierRepository SupplierRepository =>
-            _supplierRepository ?? (_supplierRepository
-                = new SupplierRepository(_context));
+                _repositories.Add(typeof(TRepository), repository);
+            }
 
-        public IShippingRepository ShippingRepository =>
-            _shippingRepository ?? (_shippingRepository
-                = new ShippingRepository(_context));
-        // Complete current unit of work, save changes to the database
+            return (TRepository) repository;
+        }
+
         public async Task<bool> CompleteAsync()
         {
             return await _context.SaveChangesAsync() > 0;
