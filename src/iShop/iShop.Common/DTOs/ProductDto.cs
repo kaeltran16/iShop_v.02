@@ -12,7 +12,7 @@ namespace iShop.Common.DTOs
         public double Price { get; set; }
         public string Summary { get; set; }
         public DateTime ExpiredDate { get; set; }
-        public Guid SupplierId { get; set; }
+        public SupplierDto Supplier{ get; set; }
         public InventoryDto Inventory { get; set; }
         public ICollection<CategoryDto> Categories { get; set; }
         public ICollection<ImageDto> Images { get; set; }

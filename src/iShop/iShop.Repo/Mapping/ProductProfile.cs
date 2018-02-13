@@ -6,11 +6,8 @@ namespace iShop.Repo.Mapping
 {
     public class ProductProfile: BaseProfile
     {
-   
-
         protected override void CreateMap()
         {
-
             CreateMap<Product, SavedProductDto>();
 
             CreateMap<Product, ProductDto>()
@@ -18,7 +15,7 @@ namespace iShop.Repo.Mapping
                     opt => opt.MapFrom(p =>
                         p.ProductCategories.Select(pc => pc.Category)))
                 .ForMember(pr => pr.Inventory, opt => opt.MapFrom(p => p.Inventory))
-                .ForMember(pr => pr.SupplierId, opt => opt.MapFrom(p => p.Inventory.SupplierId));
+                .ForMember(pr => pr.Supplier, opt => opt.MapFrom(p => p.Inventory.Supplier));
 
 
             CreateMap<ProductDto, Product>()
@@ -29,8 +26,6 @@ namespace iShop.Repo.Mapping
             CreateMap<SavedProductDto, Product>()
                 .ForMember(p => p.Id, opt => opt.Ignore())
                 .ForMember(p => p.ProductCategories, opt => opt.Ignore())
-
-
                 .ForMember(p => p.Inventory, opt => opt.Ignore());
 
 

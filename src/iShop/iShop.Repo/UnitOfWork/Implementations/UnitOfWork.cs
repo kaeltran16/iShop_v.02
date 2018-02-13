@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using iShop.Data.Base;
 using iShop.Repo.Data.Base;
-using iShop.Repo.Data.Implementations;
-using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 
 namespace iShop.Repo.UnitOfWork.Implementations

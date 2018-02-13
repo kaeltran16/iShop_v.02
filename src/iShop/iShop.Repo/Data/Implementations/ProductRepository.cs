@@ -26,7 +26,7 @@ namespace iShop.Repo.Data.Implementations
                         .Include(p => p.Images)
                         .Include(p => p.Inventory)
                         .ThenInclude(i => i.Supplier))
-                : new Specification<Product>(predicate: null, includes: null);
+                : new Specification<Product>(predicate: o => o.Id == id, includes: null);
             return await GetSingleAsync(spec);
         }
 

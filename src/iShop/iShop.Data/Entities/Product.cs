@@ -27,9 +27,30 @@ namespace iShop.Data.Entities
         {
         }
 
-        public async Task AddCategory(Guid categoryId)
+        public void AddCategory(Guid categoryId)
         {
-            
+            var productCategory = new ProductCategory() {ProductId = Id, CategoryId = categoryId};
+            ProductCategories.Add(productCategory);
+        }
+
+        public void RemoveCategory(Guid categoryId)
+        {
+            var removedCategory =
+                ProductCategories.SingleOrDefault(g => g.CategoryId == categoryId && g.ProductId == Id);
+            ProductCategories.Remove(removedCategory);
+        }
+
+        public void AddToInventory(int stock, Guid supplierId)
+        {
+            if (Inventory == null)
+            {
+                Inventory =
+                    new Inventory() {ProductId = Id, SupplierId = supplierId, Stock = stock};
+            }
+            else
+            {
+                Inventory.Stock += stock;
+            }
         }
 
     }

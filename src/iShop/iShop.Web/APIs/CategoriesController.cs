@@ -29,7 +29,6 @@ namespace iShop.Web.APIs
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok("test");
             var category = await _unitOfWork.GetRepository<CategoryRepository>().GetCategories();
 
 

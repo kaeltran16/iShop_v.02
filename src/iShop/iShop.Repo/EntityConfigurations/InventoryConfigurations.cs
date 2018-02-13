@@ -8,8 +8,6 @@ namespace iShop.Repo.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<Inventory> builder)
         {
-            builder.HasKey(i => new {i.ProductId, i.SupplierId});
-
             builder.Property(i => i.ProductId)
                 .IsRequired();
 
@@ -24,7 +22,6 @@ namespace iShop.Repo.EntityConfigurations
                 .WithOne(p => p.Inventory)
                 .HasForeignKey<Inventory>(i => i.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
-
 
             builder
                 .HasOne(i => i.Supplier)

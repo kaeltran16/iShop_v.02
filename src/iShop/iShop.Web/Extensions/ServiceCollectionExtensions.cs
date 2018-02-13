@@ -9,6 +9,8 @@ using iShop.Repo.Data.Implementations;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Implementations;
 using iShop.Repo.UnitOfWork.Interfaces;
+using iShop.Service.Implementations;
+using iShop.Service.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,7 @@ namespace iShop.Web.Extensions
             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<IShippingRepository, ShippingRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IProductService, ProductService>();
 
             return services;
         }
@@ -54,7 +57,7 @@ namespace iShop.Web.Extensions
                 options.UseSqlServer(Startup.Configuration.GetConnectionString("Default"),
                     opt => opt.MigrationsAssembly("iShop.Repo"));
                 // Use OpenIddict
-                //options.UseOpenIddict<Guid>();
+                options.UseOpenIddict<Guid>();
             });
 
             return services;
