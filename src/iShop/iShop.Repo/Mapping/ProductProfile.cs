@@ -4,7 +4,7 @@ using iShop.Data.Entities;
 
 namespace iShop.Repo.Mapping
 {
-    public class ProductProfile: BaseProfile
+    public class ProductProfile : BaseProfile
     {
         protected override void CreateMap()
         {
@@ -15,20 +15,20 @@ namespace iShop.Repo.Mapping
                     opt => opt.MapFrom(p =>
                         p.ProductCategories.Select(pc => pc.Category)))
                 .ForMember(pr => pr.Inventory, opt => opt.MapFrom(p => p.Inventory))
-                .ForMember(pr => pr.Supplier, opt => opt.MapFrom(p => p.Inventory.Supplier));
-
+                .ForMember(pr => pr.Supplier, opt => opt.MapFrom(p => p.Inventory.Supplier))
+                .ForAllMembers(opt => opt.Condition(
+                    (src, des, srcMbr, desMbr) => (srcMbr != null)));
 
             CreateMap<ProductDto, Product>()
                 .ForMember(p => p.Id, opt => opt.Ignore())
                 .ForMember(d => d.ProductCategories, opt => opt.Ignore());
 
-
             CreateMap<SavedProductDto, Product>()
                 .ForMember(p => p.Id, opt => opt.Ignore())
                 .ForMember(p => p.ProductCategories, opt => opt.Ignore())
-                .ForMember(p => p.Inventory, opt => opt.Ignore());
-
-
+                .ForMember(p => p.Inventory, opt => opt.Ignore())
+                .ForAllMembers(opt => opt.Condition(
+                    (src, des, srcMbr, desMbr) => (srcMbr != null)));
         }
     }
 }

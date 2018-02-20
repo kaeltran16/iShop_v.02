@@ -1,152 +1,147 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Threading.Tasks;
+using iShop.Common.DTOs;
+using iShop.Common.Helpers;
+using iShop.Service.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
-//namespace iShop.Infras.API.APIs
-//{
-//    [Route("/api/[controller]")]
-//    public class ShippingsController: BaseController
-//    {
-//        private readonly IMapper _mapper;
-//        private readonly IUnitOfWork _unitOfWork;
-//        private readonly ILogger<ShippingsController> _logger;
-
-//        public ShippingsController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<ShippingsController> logger)
-//        {
-//            _mapper = mapper;
-//            _unitOfWork = unitOfWork;
-//            _logger = logger;
-//        }
+namespace iShop.Web.APIs
+{
+    [Route("/api/[controller]")]
+    public class ShippingsController : Controller
+    {
+        private readonly IShippingService _shippingService;
 
 
-//        // GET
-//        [HttpGet]
-//        public async Task<IActionResult> Get()
-//        {
-//            var shipping = await _unitOfWork.ShippingRepository.GetShippings();
-
-//            var shippingResource = _mapper.Map<IEnumerable<Shipping>, IEnumerable<ShippingDto>>(shipping);
-
-//            return Ok(shippingResource);
-//        }
+        public ShippingsController(IShippingService shippingService)
+        {
+            _shippingService = shippingService;
+        }
 
 
-//        // GET
-//        [HttpGet("{id}", Name = ApplicationConstants.ControllerName.Shipping)]
-//        public async Task<IActionResult> Get(string id)
-//        {
-//            bool isValid = Guid.TryParse(id, out var shippingId);
-
-//            if (!isValid)
-//                return InvalidId(id);
-
-//            var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
-
-//            if (shipping == null)
-//                return NullOrEmpty();
-
-//            var shippingResource = _mapper.Map<Shipping, ShippingDto>(shipping);
-
-//            return Ok(shippingResource);
-//        }
+        // GET
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var shippings = await _shippingService.GetAll();
+            return Ok(shippings);
+        }
 
 
+        // GET
+        [HttpGet("{id}", Name = ApplicationConstants.ControllerName.Shipping)]
+        public async Task<IActionResult> Get(string id)
+        {
+            bool isValid = Guid.TryParse(id, out var shippingId);
 
-//        // POST
-       
-//        [HttpPost]
-//        public async Task<IActionResult> Create([FromBody] ShippingDto shippingResource)
-//        {
-//            if (!ModelState.IsValid)
-//                return BadRequest(ModelState);
+            //if (!isValid)
+            //    return InvalidId(id);
 
-//            var shipping = _mapper.Map<ShippingDto, Shipping>(shippingResource);
+            //var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
 
-//            await _unitOfWork.ShippingRepository.AddAsync(shipping);
+            //if (shipping == null)
+            //    return NullOrEmpty();
 
-//            // if something happens and the new item can not be saved, return the error
-//            if (!await _unitOfWork.CompleteAsync())
-//            {
-//                //_logger.LogMessage(LoggingEvents.SavedFail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//                _logger.LogInformation("");
-//                return FailedToSave(shipping.Id);
-//            }
+            var shipping = await _shippingService.Get(shippingId);
 
-//            shipping = await _unitOfWork.ShippingRepository.GetShipping(shipping.Id);
+            return Ok(shipping);
+        }
 
-//            var result = _mapper.Map<Shipping, ShippingDto>(shipping);
+        // POST
 
-//            //_logger.LogMessage(LoggingEvents.Created, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//            _logger.LogInformation("");
-//            return CreatedAtRoute(ApplicationConstants.ControllerName.Shipping, new { id = shipping.Id }, result);
-//        }
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ShippingDto shippingResource)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-//        // DELETE
-//        [Authorize(Roles = ApplicationConstants.RoleName.SuperUser)]
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> Delete(string id)
-//        {
-//            bool isValid = Guid.TryParse(id, out var shippingId);
+            //var shipping = _mapper.Map<ShippingDto, Shipping>(shippingResource);
 
-//            if (!isValid)
-//                return InvalidId(id);
+            //await _unitOfWork.ShippingRepository.AddAsync(shipping);
 
-//            var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
+            //// if something happens and the new item can not be saved, return the error
+            //if (!await _unitOfWork.CompleteAsync())
+            //{
+            //    //_logger.LogMessage(LoggingEvents.SavedFail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //    _logger.LogInformation("");
+            //    return FailedToSave(shipping.Id);
+            //}
 
-//            if (shipping == null)
-//                return NullOrEmpty();
+            //shipping = await _unitOfWork.ShippingRepository.GetShipping(shipping.Id);
 
-//            _unitOfWork.ShippingRepository.Remove(shipping);
-//            if (!await _unitOfWork.CompleteAsync())
-//            {
-//                //_logger.LogMessage(LoggingEvents.Fail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//                _logger.LogInformation("");
-//                return FailedToSave(shipping.Id);
-//            }
+            //var result = _mapper.Map<Shipping, ShippingDto>(shipping);
 
-//            //_logger.LogMessage(LoggingEvents.Deleted, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//            _logger.LogInformation("");
-//            return NoContent();
-//        }
+            ////_logger.LogMessage(LoggingEvents.Created, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //_logger.LogInformation("");
+            var shipping = await _shippingService.CreateAsync(shippingResource);
+            return CreatedAtRoute(ApplicationConstants.ControllerName.Shipping, new {id = shipping.Id}, shipping);
+        }
+
+        // DELETE
+        //[Authorize(Roles = ApplicationConstants.RoleName.SuperUser)]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            bool isValid = Guid.TryParse(id, out var shippingId);
+
+            //if (!isValid)
+            //    return InvalidId(id);
+
+            //var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
+
+            //if (shipping == null)
+            //    return NullOrEmpty();
+
+            //_unitOfWork.ShippingRepository.Remove(shipping);
+            //if (!await _unitOfWork.CompleteAsync())
+            //{
+            //    //_logger.LogMessage(LoggingEvents.Fail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //    _logger.LogInformation("");
+            //    return FailedToSave(shipping.Id);
+            //}
+
+            ////_logger.LogMessage(LoggingEvents.Deleted, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //_logger.LogInformation("");
+            await _shippingService.RemoveAsync(shippingId);
+            return NoContent();
+        }
 
 
 
-//        // PUT
-//        [Authorize(Policy = ApplicationConstants.PolicyName.SuperUsers)]
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> Update(string id, [FromBody] ShippingDto shippingResource)
-//        {
-//            bool isValid = Guid.TryParse(id, out var shippingId);
+        // PUT
+        //[Authorize(Policy = ApplicationConstants.PolicyName.SuperUsers)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ShippingDto shippingDto)
+        {
+            bool isValid = Guid.TryParse(id, out var shippingId);
 
-//            if (!isValid)
-//                return InvalidId(id);
+            //if (!isValid)
+            //    return InvalidId(id);
 
-//            if (!ModelState.IsValid)
-//                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
-//            var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
+            //var shipping = await _unitOfWork.ShippingRepository.GetShipping(shippingId);
 
-//            if (shipping == null)
-//                return NullOrEmpty();
+            //if (shipping == null)
+            //    return NullOrEmpty();
 
-//            _mapper.Map(shippingResource, shipping);
+            //_mapper.Map(shippingResource, shipping);
 
-//            if (!await _unitOfWork.CompleteAsync())
-//            {
-//                //_logger.LogMessage(LoggingEvents.SavedFail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//                _logger.LogInformation("");
-//                return FailedToSave(shipping.Id);
-//            }
+            //if (!await _unitOfWork.CompleteAsync())
+            //{
+            //    //_logger.LogMessage(LoggingEvents.SavedFail, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //    _logger.LogInformation("");
+            //    return FailedToSave(shipping.Id);
+            //}
 
-//            shipping = await _unitOfWork.ShippingRepository.GetShipping(shipping.Id);
+            //shipping = await _unitOfWork.ShippingRepository.GetShipping(shipping.Id);
 
-//            var result = _mapper.Map<Shipping, ShippingDto>(shipping);
-//            //_logger.LogMessage(LoggingEvents.Updated, ApplicationConstants.ControllerName.Shipping, shipping.Id);
-//            _logger.LogInformation("");
-//            return Ok(result);
-//        }
-//    }
-//}
+            //var result = _mapper.Map<Shipping, ShippingDto>(shipping);
+            ////_logger.LogMessage(LoggingEvents.Updated, ApplicationConstants.ControllerName.Shipping, shipping.Id);
+            //_logger.LogInformation("");
+            var shipping = await _shippingService.UpdateAsync(shippingId, shippingDto);
+            return Ok(shipping);
+        }
+    }
+}

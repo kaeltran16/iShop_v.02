@@ -34,6 +34,12 @@ namespace iShop.Web.Extensions
             services.AddScoped<IShippingRepository, ShippingRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IShippingService, ShippingService>();
+            services.AddScoped<IShoppingCartService, ShoppingCartService>();
+            services.AddScoped<ISupplierService, SupplierService>();
 
             return services;
         }

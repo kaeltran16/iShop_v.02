@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using iShop.Common.Base;
 
 namespace iShop.Common.DTOs
 {
-    public class ProductDto
+    public class ProductDto: IBaseDto
     {
         public Guid Id { get; set; }      
         public string Sku { get; set; }

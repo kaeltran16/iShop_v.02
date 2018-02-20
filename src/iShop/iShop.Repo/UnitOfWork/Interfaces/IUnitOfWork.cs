@@ -9,7 +9,7 @@ namespace iShop.Repo.UnitOfWork.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         TRepository GetRepository<TRepository>()
-            where TRepository : class, IDataRepository;
+            where TRepository : IDataRepository;
         Task<bool> CompleteAsync();
     }
 

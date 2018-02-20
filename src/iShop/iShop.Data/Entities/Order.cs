@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using iShop.Data.Base;
 
 namespace iShop.Data.Entities
@@ -22,6 +23,21 @@ namespace iShop.Data.Entities
         public Order()
         {
             
+        }
+
+        public void AddItem(Guid productId, int quantity)
+        {
+            var orderItem = OrderedItems.SingleOrDefault(o => o.ProductId == productId && o.OrderId == Id);
+            if (orderItem == null)
+            orderItem = new OrderedItem(){ProductId = productId, OrderId = Id, Quantity = quantity};
+            else
+                orderItem.Quantity += quantity;
+            OrderedItems.Add(orderItem);
+        }
+
+        public void RemoveItem(OrderedItem item)
+        {
+            OrderedItems.Remove(item);
         }
     }
 }

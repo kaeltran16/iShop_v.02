@@ -1,46 +1,51 @@
-﻿//using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using AspNet.Security.OpenIdConnect.Primitives;
+using AutoMapper;
+using iShop.Common.DTOs;
+using iShop.Common.Extensions;
+using iShop.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
-//namespace iShop.Infras.API.APIs
-//{
-//    public class UsersController: BaseController
-//    {
-//        private readonly UserManager<ApplicationUser> _userManager;
- 
-//        public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper)
-//        {
-//            _userManager = userManager;
-//        }
- 
-//        //
-//        // GET:
-//        [Authorize]
-//        [HttpGet("/api/userinfo")]
-//        public async Task<IActionResult> Userinfo()
-//        {
-//            var user = await _userManager.FindByIdAsync(User.GetUserId().ToString());
+namespace iShop.Web.APIs
+{
+    public class UsersController : Controller
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
 
-//            if (user == null)
-//            {
-//                return BadRequest(new OpenIdConnectResponse
-//                {
-//                    Error = OpenIdConnectConstants.Errors.InvalidGrant,
-//                    ErrorDescription = "The user profile is no longer available."
-//                });
-//            }
+        public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper)
+        {
+            _userManager = userManager;
+        }
 
-//            var userResource = Mapper.Map<ApplicationUser, ApplicationUserDto>(user);
+        //
+        // GET:
+        [Authorize]
+        [HttpGet("/api/userinfo")]
+        public async Task<IActionResult> Userinfo()
+        {
+            var user = await _userManager.FindByIdAsync(User.GetUserId().ToString());
 
-//            var roles = await _userManager.GetRolesAsync(user);
+            if (user == null)
+            {
+                return BadRequest(new OpenIdConnectResponse
+                {
+                    Error = OpenIdConnectConstants.Errors.InvalidGrant,
+                    ErrorDescription = "The user profile is no longer available."
+                });
+            }
 
-//            var userData = new {userInfo = userResource, roles = roles};
-          
+            var userResource = Mapper.Map<ApplicationUser, ApplicationUserDto>(user);
 
-//            return Ok(userData);
-//        }
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userData = new { userInfo = userResource, roles = roles };
 
 
-//    }
-//}
+            return Ok(userData);
+        }
+
+
+    }
+}

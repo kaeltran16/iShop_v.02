@@ -42,7 +42,7 @@
 
 //            // Mapping the input to model class
 //            var currentUser = _mapper.Map<RegisterDto, ApplicationUser>(model);
-            
+
 //            // In this application, UserName itseft is Email
 //            currentUser.UserName = model.Email;
 
@@ -54,7 +54,7 @@
 
 //            var claimResult = await _userManager.AddClaimAsync(currentUser, new Claim(ApplicationConstants.ClaimName.User, "true"));
 //            // Add claims as well
-           
+
 
 //            // Everything is fine, return 200 and log 
 //            if (createResult.Succeeded && roleResult.Succeeded && claimResult.Succeeded)

@@ -21,6 +21,7 @@ namespace iShop.Common.DTOs
         public DateTime ExpiredDate { get; set; }
         [Required]
         public int Stock { get; set; }
+        [Required]
         public Guid SupplierId { get; set; }
         public ICollection<Guid> Categories { get; set; }
 

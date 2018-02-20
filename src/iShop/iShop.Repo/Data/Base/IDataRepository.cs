@@ -16,7 +16,6 @@ namespace iShop.Repo.Data.Base
         Task<T> AddAsync(T entity);
 
         void Remove(T entity);
-
         void Update(T entity);
     }
 }

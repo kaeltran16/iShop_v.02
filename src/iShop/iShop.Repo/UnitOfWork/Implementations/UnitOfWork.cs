@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using iShop.Repo.Data.Base;
 using iShop.Repo.UnitOfWork.Interfaces;
@@ -18,11 +19,15 @@ namespace iShop.Repo.UnitOfWork.Implementations
 
 
         public TRepository GetRepository<TRepository>() 
-            where TRepository : class, IDataRepository
+            where TRepository : IDataRepository
         {
             if (!_repositories.TryGetValue(typeof(TRepository), out var repository))
             {
-                repository = (TRepository)Activator.CreateInstance(typeof(TRepository), _context);
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(s => s.GetTypes())
+                    .Where(p => typeof(TRepository).IsAssignableFrom(p) && !p.IsAbstract);
+                var concreteType = types.Single();
+                repository = (TRepository)Activator.CreateInstance(concreteType, _context);
 
                 _repositories.Add(typeof(TRepository), repository);
             }
