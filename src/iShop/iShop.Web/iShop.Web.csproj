@@ -20,11 +20,15 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\iShop.Repo\iShop.Repo.csproj" />
     <ProjectReference Include="..\iShop.Service\iShop.Service.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <DefaultItemExcludes>.git\**;$(DefaultItemExcludes)</DefaultItemExcludes>
+  </PropertyGroup>
 </Project>

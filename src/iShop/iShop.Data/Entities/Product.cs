@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using iShop.Data.Base;
 
 namespace iShop.Data.Entities
@@ -23,34 +23,46 @@ namespace iShop.Data.Entities
             = new Collection<OrderedItem>();
         public ICollection<Cart> Carts { get; set; } = new Collection<Cart>();
 
-        public Product()
+        private Product()
         {
         }
 
         public void AddCategory(Guid categoryId)
         {
-            var productCategory = new ProductCategory() {ProductId = Id, CategoryId = categoryId};
-            ProductCategories.Add(productCategory);
+            try
+            {
+                var productCategory = new ProductCategory() {ProductId = Id, CategoryId = categoryId};
+                ProductCategories.Add(productCategory);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
         }
 
         public void RemoveCategory(Guid categoryId)
         {
             var removedCategory =
                 ProductCategories.SingleOrDefault(g => g.CategoryId == categoryId && g.ProductId == Id);
+            Guard.Against.Null(removedCategory, nameof(removedCategory));
             ProductCategories.Remove(removedCategory);
         }
 
         public void AddToInventory(int stock, Guid supplierId)
         {
-            if (Inventory == null)
+            try
             {
-                Inventory =
-                    new Inventory() {ProductId = Id, SupplierId = supplierId, Stock = stock};
+                if (Inventory == null) 
+                    Inventory =
+                        new Inventory() {ProductId = Id, SupplierId = supplierId, Stock = stock};
+                else
+                    Inventory.Stock += stock;
             }
-            else
+            catch (Exception e)
             {
-                Inventory.Stock += stock;
-            }
+                throw new Exception(e.Message);
+            }   
         }
 
     }

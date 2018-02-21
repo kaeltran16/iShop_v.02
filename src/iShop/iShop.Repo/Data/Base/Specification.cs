@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Query;
 namespace iShop.Repo.Data.Base
 {
     public class Specification<T>: ISpecification<T>
-        where T : class, IEntityBase, new()
+        where T : class, IEntityBase
     {
         public Specification(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> includes)
         {

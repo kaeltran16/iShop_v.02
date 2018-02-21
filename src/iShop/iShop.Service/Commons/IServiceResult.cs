@@ -4,10 +4,10 @@ using System.Text;
 
 namespace iShop.Service.Commons
 {
-    public interface IResult
+    public interface IServiceResult
     {
         bool IsSuccess { get; set; }
-        string Error { get; set; }
-        object Payload { get; set; }
+        string Message { get; set; }
+        dynamic Payload { get; set; }
     }
 }
