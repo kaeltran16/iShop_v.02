@@ -16,12 +16,18 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<Category> GetCategory(Guid id)
         {
-            return await GetSingleAsync(c => c.Id == id);
+            var spec = 
+                new Specification<Category>(predicate: c => c.Id == id, includes: null);
+
+            return await GetSingleAsync(spec);
         }
 
         public async Task<IEnumerable<Category>> GetCategories()
         {
-            return await GetAllAsync();
+            var spec = 
+                new Specification<Category>(predicate: null, includes: null); 
+
+            return await GetAllAsync(spec);
         }
 
 

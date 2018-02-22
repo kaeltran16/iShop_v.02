@@ -1,8 +1,9 @@
 ﻿using System;
+using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class Cart
+    public class Cart: IEntityBase
     {
         public Guid ProductId { get; set; }
         public Product Product { get; set; }

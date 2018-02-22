@@ -1,59 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Base;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Base
 {
     public class DataRepositoryBase<T> : IDataRepository<T>
-        where T : EntityBase, new()
+        where T : class, IEntityBase
     {
-        protected ApplicationDbContext _context;
+        protected ApplicationDbContext Context;
 
-        protected DataRepositoryBase(ApplicationDbContext context)
+        public DataRepositoryBase(ApplicationDbContext context)
         {
-            _context = context;
+            Context = context;
         }
 
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(ISpecification<T> spec)
         {
-            IQueryable<T> query = _context.Set<T>();
-            if (includeProperties != null)
-                query = includeProperties(query);
+            IQueryable<T> query = Context.Set<T>();
+            if (spec.Includes != null)
+                query = spec.Includes(query);
 
-            if (predicate != null)
-                return await query.Where(predicate).ToListAsync();
+            if (spec.Predicate != null)
+                return await query.Where(spec.Predicate).ToListAsync();
 
             return await query.ToListAsync();
         }
 
-        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null)
+        public async Task<T> GetSingleAsync(ISpecification<T> spec)
         {
-            IQueryable<T> query = _context.Set<T>();
-            if (includeProperties != null)
-                query = includeProperties(query);
+            IQueryable<T> query = Context.Set<T>();
+            if (spec.Includes != null)
+                query = spec.Includes(query);
 
-            if (predicate != null)
-                return await query.SingleOrDefaultAsync(predicate);
+            if (spec.Predicate != null)
+                return await query.SingleOrDefaultAsync(spec.Predicate);
 
             return await query.SingleOrDefaultAsync();
         }
 
-        public async Task AddAsync(T entity)
+        
+        public async Task<T> AddAsync(T entity)
         {
-            await _context.AddAsync(entity);
+            await Context.Set<T>().AddAsync(entity);
+            return entity;
         }
 
         public void Remove(T entity)
         {
-            _context.Remove(entity);
+            Context.Set<T>().Remove(entity);
+        }
+
+        public void Update(T entity)
+        {
+            Context.Entry(entity).State = EntityState.Modified;
         }
     }
 }

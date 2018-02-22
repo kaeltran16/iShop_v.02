@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
@@ -18,43 +17,50 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<IEnumerable<Order>> GetOrders(bool isIncludeRelative = true)
         {
-            return isIncludeRelative
-                ? await GetAllAsync(includeProperties: source => source
-                    .Include(o => o.OrderedItems)
-                    .Include(o => o.Shipping)
-                    .Include(o => o.Invoice)
-                    .Include(o => o.User))
-                : await GetAllAsync();
+            ISpecification<Order> spec = isIncludeRelative
+                ? new Specification<Order>(predicate: null,
+                    includes: source => source
+                        .Include(o => o.OrderedItems)
+                        .Include(o => o.Shipping)
+                        .Include(o => o.Invoice)
+                        .Include(o => o.User))
+
+                : new Specification<Order>(predicate: null,
+                    includes: null);
+
+            return await GetAllAsync(spec);
         }
 
         public async Task<IEnumerable<Order>> GetUserOrders(Guid userId, bool isIncludeRelative = true)
         {
-            Expression<Func<Order, bool>> predicate = o => o.UserId == userId;
-
-            return isIncludeRelative
-                ? await GetAllAsync(
-                    predicate: predicate,
-                    includeProperties: source => source
+            ISpecification<Order> spec = isIncludeRelative
+                ? new Specification<Order>(predicate: o => o.UserId == userId,
+                    includes: source => source
                         .Include(o => o.OrderedItems)
                         .Include(o => o.Shipping)
                         .Include(o => o.Invoice)
                         .Include(o => o.User))
-                : await GetAllAsync(predicate);
+                : new Specification<Order>(predicate: o => o.UserId == userId,
+                    includes: null);
+
+            return await GetAllAsync(spec);
         }
 
         public async Task<Order> GetOrder(Guid orderId, bool isIncludeRelative = true)
         {
-            Expression<Func<Order, bool>> predicate = o => o.Id == orderId;
-
-            return isIncludeRelative
-                ? await GetSingleAsync(predicate,
-                    includeProperties: source => source
+            ISpecification<Order> spec = isIncludeRelative
+                ? new Specification<Order>(predicate: o => o.Id == orderId,
+                    includes: source => source
                         .Include(o => o.OrderedItems)
                         .Include(o => o.Shipping)
                         .Include(o => o.Invoice)
                         .Include(o => o.User))
-                : await GetSingleAsync(predicate);
-        } 
+
+                : new Specification<Order>(predicate: o => o.Id == orderId,
+                    includes: null);
+
+            return await GetSingleAsync(spec);
+        }
     }
 }
 

@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
+using iShop.Data.Base;
 
 namespace iShop.Repo.Data.Base
 {
     public interface IDataRepository { }
 
     public interface IDataRepository<T> : IDataRepository
-        where T : class, new()
+        where T : class, IEntityBase
     {
-        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null);
+        Task<IEnumerable<T>> GetAllAsync(ISpecification<T> spec);
 
-        Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null);
-        Task AddAsync(T entity);
+        Task<T> GetSingleAsync(ISpecification<T> spec);
+
+        Task<T> AddAsync(T entity);
+
         void Remove(T entity);
+        void Update(T entity);
     }
 }

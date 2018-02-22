@@ -2,7 +2,6 @@
 using iShop.Data.Entities;
 using iShop.Repo.EntityConfigurations;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace iShop.Repo.Extensions

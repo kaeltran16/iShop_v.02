@@ -2,31 +2,32 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using iShop.Common.DataAnnotations;
 
 namespace iShop.Common.DTOs
 {
     public class SavedProductDto
     {
-        public Guid Id { get; set; }      
-        [StringLength(50)]
-        public string Sku { get; set; }
+        public Guid Id { get; set; }
+        [StringLength(20, ErrorMessage = "Sku must not have longer than 20 characters.")]
+        public string Sku { get; set; } 
         [Required]
-        [StringLength(100)]
+        [StringLength(50, ErrorMessage = "Name must not have longer than 50 characters.")]
         public string Name { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Price must be a positive value and greater than 1.")]
         public double Price { get; set; }
-        [StringLength(255)]
+        [StringLength(255, ErrorMessage = "Summary must not have longer than 255 characters.")]
         public string Summary { get; set; }
         [Required]
-        public DateTime ExpiredDate { get; set; }
-        [Required]
-        public int Stock { get; set; }
+        [DataType(DataType.Date)]
+        [FutureDate(ErrorMessage = "Expired Date must be greater than today.")]
+        public DateTime ExpiredDate { get; set; }   
+        [GuidFormat(ErrorMessage = "The SupplierId is missing or not in format.")]
         public Guid SupplierId { get; set; }
-        public ICollection<Guid> Categories { get; set; }
-
-        public SavedProductDto()
-        {
-            Categories = new Collection<Guid>();
-        }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Stock must be a positive value and greater than 1.")]
+        public int Stock { get; set; }
+        public ICollection<Guid> Categories { get; set; } = new Collection<Guid>();
     }
 }

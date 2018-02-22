@@ -8,7 +8,7 @@ namespace iShop.Repo.Data.Interfaces
 {
     public interface IImagesRepository: IDataRepository<Image>
     {
-        Task<IEnumerable<Image>> GetProductImages(Guid productId);
-        Task<Image> Get(Guid id);
+        Task<IEnumerable<Image>> GetProductImages(Guid productId, bool isIncludeRelavtive);
+        Task<Image> Get(Guid id, bool isIncludeRelavtive);
     }
 }

@@ -26,6 +26,7 @@ namespace iShop.Common.DTOs
         public string PhoneNumber { get; set; }
         [Required]
         public string UserName { get; set; }
+        [Required]
         public Guid OrderId { get; set; }
         public ShippingDto()
         {

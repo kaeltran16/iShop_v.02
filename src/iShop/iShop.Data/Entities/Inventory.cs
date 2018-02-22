@@ -3,7 +3,7 @@ using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class Inventory: EntityBase
+    public class Inventory: KeyEntity, IEntityBase
     {
         public Guid ProductId { get; set; }
         public Product Product { get; set; }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
@@ -17,21 +16,24 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<Shipping> GetShipping(Guid id, bool isIncludeRelative = true)
         {
-            Expression<Func<Shipping, bool>> predicate = o => o.Id == id;
-              return isIncludeRelative
-                ? await GetSingleAsync(
-                    predicate: predicate,
-                    includeProperties: source => source
+            ISpecification<Shipping> spec = isIncludeRelative
+                ? new Specification<Shipping>(predicate: o => o.Id == id,
+                    includes: source => source
                         .Include(o => o.Order))
-                : await GetSingleAsync(predicate);
+                : new Specification<Shipping>(predicate: null, includes: null);
+
+            return await GetSingleAsync(spec);
         }
 
         public async Task<IEnumerable<Shipping>> GetShippings(bool isIncludeRelative = true)
         {
-            return isIncludeRelative
-                ? await GetAllAsync(includeProperties: source => source
-                    .Include(o => o.Order))
-                : await GetAllAsync();
+            ISpecification<Shipping> spec = isIncludeRelative
+                ? new Specification<Shipping>(predicate: null,
+                    includes: source => source
+                        .Include(o => o.Order))
+                : new Specification<Shipping>(predicate: null, includes: null);
+
+            return await GetAllAsync(spec);
         }
     }
 }

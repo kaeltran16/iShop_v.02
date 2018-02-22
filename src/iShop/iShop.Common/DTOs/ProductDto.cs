@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using iShop.Common.Base;
 
 namespace iShop.Common.DTOs
 {
-    public class ProductDto
+    public class ProductDto: IBaseDto
     {
         public Guid Id { get; set; }      
         public string Sku { get; set; }
@@ -12,7 +13,7 @@ namespace iShop.Common.DTOs
         public double Price { get; set; }
         public string Summary { get; set; }
         public DateTime ExpiredDate { get; set; }
-        public Guid SupplierId { get; set; }
+        public SupplierDto Supplier{ get; set; }
         public InventoryDto Inventory { get; set; }
         public ICollection<CategoryDto> Categories { get; set; }
         public ICollection<ImageDto> Images { get; set; }

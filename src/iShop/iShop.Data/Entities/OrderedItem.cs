@@ -1,8 +1,9 @@
 ﻿using System;
+using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class OrderedItem
+    public class OrderedItem: IEntityBase
     {
         public Guid ProductId { get; set; }
         public Product Product { get; set; }

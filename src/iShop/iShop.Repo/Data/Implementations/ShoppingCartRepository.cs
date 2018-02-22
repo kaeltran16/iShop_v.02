@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
@@ -19,38 +18,44 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<IEnumerable<ShoppingCart>> GetUserShoppingCarts(Guid userId, bool isIncludeRelative = true)
         {
-            Expression<Func<ShoppingCart, bool>> predicate = p => p.UserId == userId;
-
-            return isIncludeRelative
-                ? await GetAllAsync(predicate,
-                    includeProperties: src => src
+            ISpecification<ShoppingCart> spec = isIncludeRelative
+                ? new Specification<ShoppingCart>(predicate: p => p.UserId == userId,
+                    includes: source => source
                         .Include(c => c.Carts)
                         .ThenInclude(p => p.Product)
                         .Include(u => u.User))
-                : await GetAllAsync(predicate);
+                : new Specification<ShoppingCart>(predicate: o => o.UserId == userId,
+                    includes: null);
+
+            return await GetAllAsync(spec);
         }
 
         public async Task<ShoppingCart> GetShoppingCart(Guid id, bool isIncludeRelative = true)
         {
-            Expression<Func<ShoppingCart, bool>> predicate = p => p.Id == id;
+            ISpecification<ShoppingCart> spec = isIncludeRelative
+                ? new Specification<ShoppingCart>(predicate: p => p.Id == id,
+                    includes: source => source
+                        .Include(c => c.Carts)
+                        .ThenInclude(p => p.Product)
+                        .Include(u => u.User))
+                : new Specification<ShoppingCart>(predicate: o => o.Id == id,
+                    includes: null);
 
-            return isIncludeRelative
-                ? await GetSingleAsync(predicate,
-                     includeProperties: src => src
-                    .Include(c => c.Carts)
-                    .ThenInclude(p => p.Product)
-                    .Include(u => u.User))
-                : await GetSingleAsync(predicate);
+            return await GetSingleAsync(spec);
         }
 
         public async Task<IEnumerable<ShoppingCart>> GetShoppingCarts(bool isIncludeRelative = true)
         {
-            return isIncludeRelative
-                ? await GetAllAsync(includeProperties: src => src
-                    .Include(c => c.Carts)
-                    .ThenInclude(p => p.Product)
-                    .Include(u => u.User))
-                : await GetAllAsync();
+            ISpecification<ShoppingCart> spec = isIncludeRelative
+                ? new Specification<ShoppingCart>(predicate: null,
+                    includes: source => source
+                        .Include(c => c.Carts)
+                        .ThenInclude(p => p.Product)
+                        .Include(u => u.User))
+                : new Specification<ShoppingCart>(predicate: null,
+                    includes: null);
+
+            return await GetAllAsync(spec);
         }
     }
 }

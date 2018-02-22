@@ -32,10 +32,10 @@ namespace iShop.Web.Extensions
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                {
-                    HotModuleReplacement = true
-                });
+                //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+                //{
+                //    HotModuleReplacement = true
+                //});
                 //app.UseSwagger();
                 //app.UseSwaggerUI(s => 
                 //{

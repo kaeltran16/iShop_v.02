@@ -3,7 +3,7 @@ using iShop.Data.Base;
 
 namespace iShop.Data.Entities
 {
-    public class Image : EntityBase
+    public class Image : KeyEntity, IEntityBase
     {
         public string FileName { get; set; }
         public Guid ProductId { get; set; }

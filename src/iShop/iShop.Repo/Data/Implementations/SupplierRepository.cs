@@ -16,12 +16,18 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<IEnumerable<Supplier>> GetSuppliers()
         {
-            return await GetAllAsync();
+            var spec = 
+                new Specification<Supplier>(predicate: null, includes: null);
+
+            return await GetAllAsync(spec);
         }
 
         public async Task<Supplier> GetSupplier(Guid supplierId)
         {
-            return await GetSingleAsync(i => i.Id == supplierId);
+            var spec = 
+                new Specification<Supplier>(predicate: null, includes: null);
+
+            return await GetSingleAsync(spec);
         }
     }
 }

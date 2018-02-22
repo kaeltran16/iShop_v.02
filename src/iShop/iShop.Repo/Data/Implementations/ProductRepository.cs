@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
@@ -19,28 +18,31 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<Product> GetProduct(Guid id, bool isIncludeRelative = true)
         {
-            Expression<Func<Product, bool>> predicate = p => p.Id == id;
-
-            return isIncludeRelative
-                ? await GetSingleAsync(predicate,
-                     includeProperties: src => src
-                    .Include(p => p.ProductCategories)
-                    .ThenInclude(c => c.Category)
-                    .Include(p => p.Images)
-                    .Include(p => p.Inventory)
-                    .ThenInclude(i => i.Supplier))
-                : await GetSingleAsync(predicate);
+            ISpecification<Product> spec = isIncludeRelative
+                ? new Specification<Product>(predicate: o => o.Id == id,
+                    includes: source => source
+                        .Include(p => p.ProductCategories)
+                        .ThenInclude(c => c.Category)
+                        .Include(p => p.Images)
+                        .Include(p => p.Inventory)
+                        .ThenInclude(i => i.Supplier))
+                : new Specification<Product>(predicate: o => o.Id == id, includes: null);
+            return await GetSingleAsync(spec);
         }
 
         public async Task<IEnumerable<Product>> GetProducts(bool isIncludeRelative = true)
         {
-            return isIncludeRelative
-                ? await GetAllAsync(includeProperties: src => src.Include(p => p.ProductCategories)
-                    .ThenInclude(c => c.Category)
-                    .Include(p => p.Images)
-                    .Include(p => p.Inventory)
-                    .ThenInclude(i => i.Supplier))
-                : await GetAllAsync();
+            ISpecification<Product> spec = isIncludeRelative
+                ? new Specification<Product>(predicate: null,
+                    includes: source => source
+                        .Include(p => p.ProductCategories)
+                        .ThenInclude(c => c.Category)
+                        .Include(p => p.Images)
+                        .Include(p => p.Inventory)
+                        .ThenInclude(i => i.Supplier))
+                : new Specification<Product>(predicate: null, includes: null);
+
+            return await GetAllAsync(spec);
         }
     }
 }
