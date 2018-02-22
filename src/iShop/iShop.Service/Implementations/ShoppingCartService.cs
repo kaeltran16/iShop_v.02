@@ -5,9 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using iShop.Common.DTOs;
+using iShop.Common.Exceptions;
+using iShop.Common.Extensions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
+using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 
 namespace iShop.Service.Implementations
@@ -25,47 +28,124 @@ namespace iShop.Service.Implementations
             _repository = _unitOfWork.GetRepository<IShoppingCartRepository>();
         }
 
-        public async Task<ShoppingCartDto> CreateAsync(SavedShoppingCartDto shoppingCartDto)
+        public async Task<IServiceResult> CreateAsync(SavedShoppingCartDto shoppingCartDto)
         {
-            var shoppingCart = _mapper.Map<SavedShoppingCartDto, ShoppingCart>(shoppingCartDto);
-
-            await _repository.AddAsync(shoppingCart);
-
-            foreach (var cartItem in shoppingCart.Carts)
+            try
             {
-                shoppingCart.AddItem(cartItem.ProductId, cartItem.Quantity);
+                var shoppingCart = _mapper.Map<SavedShoppingCartDto, ShoppingCart>(shoppingCartDto);
+
+                await _repository.AddAsync(shoppingCart);
+
+                if (shoppingCart.Carts.Count > 0)
+                {
+                    foreach (var cartItem in shoppingCart.Carts)
+                    {
+                        shoppingCart.AddItem(cartItem.ProductId, cartItem.Quantity);
+                    }
+                }
+
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shoppingCart));
+                }
+
+                var result = await GetSingleAsync(shoppingCart.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
             }
-
-            await _unitOfWork.CompleteAsync();
-
-            return await Get(shoppingCart.Id);
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+           
         }
 
-        public async Task<ShoppingCartDto> Get(Guid id)
+        public async Task<IServiceResult> GetSingleAsync(string id)
         {
-            var shoppingCart = await _repository.GetShoppingCart(id);
-            return _mapper.Map<ShoppingCart, ShoppingCartDto>(shoppingCart);
+            try
+            {
+                var shoppingCartId = id.ToGuid();
+
+                var shoppingCart = await _repository.GetShoppingCart(shoppingCartId);
+                if (shoppingCart == null)
+                    throw new NotFoundException(nameof(shoppingCart), id);
+
+                var shoppingCartDto = _mapper.Map<ShoppingCart, ShoppingCartDto>(shoppingCart);
+                return new ServiceResult(payload: shoppingCartDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+           
         }
 
-        public async Task<IEnumerable<ShoppingCartDto>> GetAll()
+        public async Task<IServiceResult> GetAllAsync()
         {
-            var shoppingCarts = await _repository.GetShoppingCarts();
-            return _mapper.Map<IEnumerable<ShoppingCart>, IEnumerable<ShoppingCartDto>>(shoppingCarts);
+            try
+            {
+                var shoppingCarts = await _repository.GetShoppingCarts();
+                
+                var shoppingCartsDto = _mapper.Map<IEnumerable<ShoppingCart>, IEnumerable<ShoppingCartDto>>(shoppingCarts);
+                return new ServiceResult(payload: shoppingCartsDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+           
         }
 
-        public async Task RemoveAsync(Guid shoppingCartId)
+        public async Task<IServiceResult> UpdateAsync(string id, SavedShoppingCartDto shoppingCartDto)
         {
-            var shoppingCart = await _repository.GetShoppingCart(shoppingCartId, false);
-            _repository.Remove(shoppingCart);
-            await _unitOfWork.CompleteAsync();
+            try
+            {
+                var shoppingCartId = id.ToGuid();
+                var shoppingCart = await _repository.GetShoppingCart(shoppingCartId);
+                _mapper.Map(shoppingCartDto, shoppingCart);
+
+                AddOrRemoveCartItems(shoppingCart, shoppingCartDto);
+
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shoppingCart));
+                }
+
+                var result = await GetSingleAsync(shoppingCart.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+          
+        }
+
+        public async Task<IServiceResult> RemoveAsync(string id)
+        {
+            try
+            {
+                var shoppingCartId = id.ToGuid();
+
+                var shoppingCart = await _repository.GetShoppingCart(shoppingCartId, false);
+                if (shoppingCart == null)
+                    throw new NotFoundException(nameof(shoppingCart), shoppingCartId);
+
+                _repository.Remove(shoppingCart);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shoppingCart));
+                }
+                return new ServiceResult();
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
         }
 
 
-        public async Task<ShoppingCartDto> UpdateAsync(Guid shoppingCartId, SavedShoppingCartDto shoppingCartDto)
+        private void AddOrRemoveCartItems(ShoppingCart shoppingCart, SavedShoppingCartDto shoppingCartDto)
         {
-            var shoppingCart = await _repository.GetShoppingCart(shoppingCartId);
-            _mapper.Map(shoppingCartDto, shoppingCart);
-
             var addedCartItems =
                 shoppingCartDto.Carts
                     .Where(cd =>
@@ -79,10 +159,6 @@ namespace iShop.Service.Implementations
                     .ToList();
             foreach (var item in removedCartItems)
                 shoppingCart.RemoveItem(item);
-
-            await _unitOfWork.CompleteAsync();
-
-            return await Get(shoppingCart.Id);
         }
 
     }

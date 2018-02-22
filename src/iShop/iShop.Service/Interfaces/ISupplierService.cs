@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using iShop.Common.DTOs;
+using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface ISupplierService
+    public interface ISupplierService: IServiceBase<SupplierDto>
     {
-        Task<SupplierDto> Get(Guid id);
-        Task<IEnumerable<SupplierDto>> GetAll();
-        Task<SupplierDto> CreateAsync(SupplierDto supplierDto);
-        Task<SupplierDto> UpdateAsync(Guid id, SupplierDto supplierDto);
-        Task RemoveAsync(Guid id);
+
     }
 }

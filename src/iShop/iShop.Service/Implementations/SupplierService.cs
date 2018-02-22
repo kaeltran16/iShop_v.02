@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using iShop.Common.DTOs;
+using iShop.Common.Exceptions;
+using iShop.Common.Extensions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
+using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 
 namespace iShop.Service.Implementations
@@ -23,40 +25,107 @@ namespace iShop.Service.Implementations
             _mapper = mapper;
             _repository = _unitOfWork.GetRepository<ISupplierRepository>();
         }
-        public async Task<SupplierDto> Get(Guid id)
+
+        public async Task<IServiceResult> CreateAsync(SupplierDto supplierDto) 
         {
-            var supplier = await _repository.GetSupplier(id);
-            return _mapper.Map<Supplier, SupplierDto>(supplier);
+            try
+            {
+                var supplier = _mapper.Map<SupplierDto, Supplier>(supplierDto);
+
+                await _repository.AddAsync(supplier);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(supplier));
+                }   
+
+                var result = await GetSingleAsync(supplier.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }    
         }
 
-        public async Task<IEnumerable<SupplierDto>> GetAll()
+        public async Task<IServiceResult> GetSingleAsync(string id)
         {
-            var suppliers = await _repository.GetSuppliers();
-            return _mapper.Map<IEnumerable<Supplier>, IEnumerable<SupplierDto>>(suppliers);
+            try
+            {
+                var supplierId = id.ToGuid();
+
+                var supplier = await _repository.GetSupplier(supplierId);
+                if (supplier == null)
+                    throw new NotFoundException(nameof(supplier), supplierId);
+
+                var supplierDto = _mapper.Map<Supplier, SupplierDto>(supplier);
+
+                return new ServiceResult(payload: supplierDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+            
         }
 
-        public async Task<SupplierDto> CreateAsync(SupplierDto supplierDto) 
+        public async Task<IServiceResult> GetAllAsync()
         {
-            var supplier = _mapper.Map<SupplierDto, Supplier>(supplierDto);
-            await _repository.AddAsync(supplier);
-            await _unitOfWork.CompleteAsync();
-            return await Get(supplier.Id);
+            try
+            {
+                var suppliers = await _repository.GetSuppliers();
+                var suppliersDto = _mapper.Map<IEnumerable<Supplier>, IEnumerable<SupplierDto>>(suppliers);
+
+                return new ServiceResult(payload: suppliersDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }        
+        }
+        public async Task<IServiceResult> UpdateAsync(string id, SupplierDto supplierDto)
+        {
+            try
+            {
+                var supplierId = id.ToGuid();
+
+                var supplier = await _repository.GetSupplier(supplierId);
+
+                _mapper.Map(supplierDto, supplier);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(supplier));
+                }    
+                var result = await GetSingleAsync(supplier.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+        
         }
 
-        public async Task<SupplierDto> UpdateAsync(Guid id, SupplierDto supplierDto)
+        public async Task<IServiceResult> RemoveAsync(string id)
         {
-            var supplier = await _repository.GetSupplier(id);
-            _mapper.Map(supplierDto, supplier);
-            _repository.Update(supplier);
-            await _unitOfWork.CompleteAsync();
-            return await Get(supplier.Id);
-        }
+            try
+            {
+                var supplierId = id.ToGuid();
 
-        public async Task RemoveAsync(Guid id)
-        {
-            var supplier = await _repository.GetSupplier(id);
-            _repository.Remove(supplier);
-            await _unitOfWork.CompleteAsync();
+                var supplier = await _repository.GetSupplier(supplierId);
+                if (supplier == null)
+                    throw new NotFoundException(nameof(supplier), supplierId);
+
+                _repository.Remove(supplier);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(supplier));
+                }
+                return new ServiceResult();
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
         }
     }
 }

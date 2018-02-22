@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
-using iShop.Common.DTOs;
-using iShop.Common.Helpers;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

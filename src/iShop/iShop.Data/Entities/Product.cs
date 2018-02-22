@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Ardalis.GuardClauses;
+using iShop.Common.Exceptions;
 using iShop.Data.Base;
 
 namespace iShop.Data.Entities
@@ -45,7 +45,8 @@ namespace iShop.Data.Entities
         {
             var removedCategory =
                 ProductCategories.SingleOrDefault(g => g.CategoryId == categoryId && g.ProductId == Id);
-            Guard.Against.Null(removedCategory, nameof(removedCategory));
+            if (removedCategory == null)
+                throw new NotFoundException(nameof(categoryId), categoryId);
             ProductCategories.Remove(removedCategory);
         }
 

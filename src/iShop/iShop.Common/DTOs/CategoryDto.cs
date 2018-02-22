@@ -7,11 +7,11 @@ namespace iShop.Common.DTOs
     {
         public Guid Id { get; set; }
         [Required]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "Name must not have longer than 100 characters.")]
         public string Name { get; set; }
-        [StringLength(255)]
+        [StringLength(255, ErrorMessage = "Detail must not have longer than 255 characters.")]
         public string Detail { get; set; }
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Short must not have longer than 50 characters.")]
         public string Short { get; set; }
     }
 }

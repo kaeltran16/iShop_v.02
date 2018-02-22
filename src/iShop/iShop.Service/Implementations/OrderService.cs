@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using iShop.Common.DTOs;
+using iShop.Common.Exceptions;
+using iShop.Common.Extensions;
 using iShop.Data.Entities;
-using iShop.Repo.Data.Implementations;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
+using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 
 namespace iShop.Service.Implementations
@@ -26,47 +27,120 @@ namespace iShop.Service.Implementations
             _repository = _unitOfWork.GetRepository<IOrderRepository>();
         }
 
-        public async Task<OrderDto> CreateAsync(SavedOrderDto orderDto)
+        public async Task<IServiceResult> CreateAsync(SavedOrderDto orderDto)
         {
-            var order = _mapper.Map<SavedOrderDto, Order>(orderDto);
-
-            await _repository.AddAsync(order);
-
-            foreach (var orderItem in orderDto.OrderedItems)
+            try
             {
-                order.AddItem(orderItem.ProductId, orderItem.Quantity);
+                var order = _mapper.Map<SavedOrderDto, Order>(orderDto);
+
+                await _repository.AddAsync(order);
+
+                foreach (var orderItem in orderDto.OrderedItems)
+                {
+                    order.AddItem(orderItem.ProductId, orderItem.Quantity);
+                }
+
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(order));
+                }
+
+                var result = await GetSingleAsync(order.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
             }
-
-            await _unitOfWork.CompleteAsync();
-
-            return await Get(order.Id);
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+          
         }
 
-        public async Task<OrderDto> Get(Guid id)
+        public async Task<IServiceResult> GetSingleAsync(string id)
         {
-            var order = await _repository.GetOrder(id);
-            return _mapper.Map<Order, OrderDto>(order);
+            try
+            {
+                var orderId = id.ToGuid(nameof(id));
+
+                var order = await _repository.GetOrder(orderId);
+                if (order == null)
+                    throw new NotFoundException(nameof(order), id);
+
+                var orderDto = _mapper.Map<Order, OrderDto>(order);
+                return new ServiceResult(payload: orderDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+            
         }
 
-        public async Task<IEnumerable<OrderDto>> GetAll()
+        public async Task<IServiceResult> GetAllAsync()
         {
-            var orders = await _repository.GetOrders();
-            return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDto>>(orders);
+            try
+            {
+                var orders = await _repository.GetOrders();
+                var ordersDto = _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDto>>(orders);
+
+                return new ServiceResult(payload: ordersDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }            
         }
 
-        public async Task RemoveAsync(Guid orderId)
+        public async Task<IServiceResult> UpdateAsync(string id, SavedOrderDto orderDto)
         {
-            var order = await _repository.GetOrder(orderId, false);
-            _repository.Remove(order);
-            await _unitOfWork.CompleteAsync();
+            try
+            {
+                var orderId = id.ToGuid(nameof(id));
+                var order = await _repository.GetOrder(orderId);
+                _mapper.Map(orderDto, order);
+
+                AddOrRemoveOrderedItems(order, orderDto);
+
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(order));
+                }
+
+                var result = await GetSingleAsync(order.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
         }
 
-
-        public async Task<OrderDto> UpdateAsync(Guid orderId, SavedOrderDto orderDto)
+        public async Task<IServiceResult> RemoveAsync(string id)
         {
-            var order = await _repository.GetOrder(orderId);
-            _mapper.Map(orderDto, order);
+            try
+            {
+                var orderId = id.ToGuid(nameof(id));
 
+                var order = await _repository.GetOrder(orderId, false);
+                if (order == null)
+                    throw new NotFoundException(nameof(order), orderId);
+
+                _repository.Remove(order);
+                
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(order));
+                }
+                return new ServiceResult();
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+           
+        }
+
+        private void AddOrRemoveOrderedItems(Order order, SavedOrderDto orderDto)
+        {
             var addedOrderItems =
                 orderDto.OrderedItems.Where(oid => order.OrderedItems.All(oi => oi.ProductId != oid.ProductId))
      
@@ -79,10 +153,7 @@ namespace iShop.Service.Implementations
                     .ToList();
             foreach (var item in removedOrderedItems)
                 order.RemoveItem(item);
-
-            await _unitOfWork.CompleteAsync();
-
-            return await Get(order.Id);
         }
+
     }
 }

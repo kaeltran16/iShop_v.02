@@ -9,7 +9,6 @@ using iShop.Common.Extensions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
-using iShop.Service.Base;
 using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 
@@ -63,11 +62,46 @@ namespace iShop.Service.Implementations
         
         }
 
+        public async Task<IServiceResult> GetSingleAsync(string id)
+        {
+            try
+            {
+                var productId = id.ToGuid();
+                var product = await _repository.GetProduct(productId);
+
+                if (product == null)
+                    throw new NotFoundException(nameof(product), id);
+
+                var productDto = _mapper.Map<Product, ProductDto>(product);
+                return new ServiceResult(payload: productDto);
+            }
+            catch (Exception e)
+            {
+               return new ServiceResult(false, e.Message);
+            }         
+        }
+
+        public async Task<IServiceResult> GetAllAsync()
+        {
+            try
+            {
+                var products = await _repository.GetProducts();
+                var productsDto = _mapper.Map<IEnumerable<Product>,
+                    IEnumerable<ProductDto>>(products);
+
+                return new ServiceResult(payload: productsDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }           
+        }
+
         public async Task<IServiceResult> UpdateAsync(string id, SavedProductDto productDto)
         {
             try
             {
-                var productId = id.ToGuid(nameof(id));
+                var productId = id.ToGuid();
                 var product = await _repository.GetProduct(productId);
                 _mapper.Map(productDto, product);
               
@@ -87,40 +121,11 @@ namespace iShop.Service.Implementations
            
         }
 
-        public async Task<IServiceResult> GetSingleAsync(string id)
-        {
-            try
-            {
-                var productId = id.ToGuid(nameof(id));
-                var product = await _repository.GetProduct(productId);
-
-                if (product == null)
-                    throw new NotFoundException(nameof(product), id);
-
-                var productDto = _mapper.Map<Product, ProductDto>(product);
-                return new ServiceResult(payload: productDto);
-            }
-            catch (Exception e)
-            {
-               return new ServiceResult(false, e.Message);
-            }
-           
-        }
-
-        public async Task<IServiceResult> GetAllAsync()
-        {
-            var products = await _repository.GetProducts();
-            var productsDto = _mapper.Map<IEnumerable<Product>,
-                IEnumerable<ProductDto>>(products);
-
-            return new ServiceResult(payload: productsDto);
-        }
-
         public async Task<IServiceResult> RemoveAsync(string id)
         {
             try
             {
-                var productId = id.ToGuid(nameof(id));
+                var productId = id.ToGuid();
                 var product = await _repository.GetProduct(productId, false);
                 if (product == null)
                     throw new NotFoundException(nameof(product), productId);

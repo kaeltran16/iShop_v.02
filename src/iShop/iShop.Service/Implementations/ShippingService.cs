@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using iShop.Common.DTOs;
+using iShop.Common.Exceptions;
+using iShop.Common.Extensions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
+using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 
 namespace iShop.Service.Implementations
@@ -22,42 +25,105 @@ namespace iShop.Service.Implementations
             _repository = _unitOfWork.GetRepository<IShippingRepository>();
         }
 
-        public async Task<ShippingDto> CreateAsync(ShippingDto shippingDto)
+        public async Task<IServiceResult> CreateAsync(ShippingDto shippingDto)
         {
-            var shipping = _mapper.Map<ShippingDto, Shipping>(shippingDto);
-            await _repository.AddAsync(shipping);
-            await _unitOfWork.CompleteAsync();
-            return await Get(shipping.Id);
+            try
+            {
+                var shipping = _mapper.Map<ShippingDto, Shipping>(shippingDto);
+
+                await _repository.AddAsync(shipping);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shipping));
+                }
+                
+                var result = await GetSingleAsync(shipping.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+            
         }
 
-        public async Task<ShippingDto> Get(Guid id)
+        public async Task<IServiceResult> GetSingleAsync(string id)
         {
-            var shipping = await _repository.GetShipping(id);
-            return _mapper.Map<Shipping, ShippingDto>(shipping);
+            try
+            {
+                var shippingId = id.ToGuid();
+
+                var shipping = await _repository.GetShipping(shippingId);
+                if (shipping == null)
+                    throw new NotFoundException(nameof(shipping), id);
+
+                var shippingDto = _mapper.Map<Shipping, ShippingDto>(shipping);
+                return new ServiceResult(payload: shippingDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }            
         }
 
-        public async Task<IEnumerable<ShippingDto>> GetAll()
+        public async Task<IServiceResult> GetAllAsync()
         {
-            var shippings = await _repository.GetShippings();
-            return _mapper.Map<IEnumerable<Shipping>, IEnumerable<ShippingDto>>(shippings);
+            try
+            {
+                var shippings = await _repository.GetShippings();
+                var shippingsDto = _mapper.Map<IEnumerable<Shipping>, IEnumerable<ShippingDto>>(shippings);
+
+                return new ServiceResult(payload: shippingsDto);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }         
         }
 
-        public async Task RemoveAsync(Guid shippingId)
+        public async Task<IServiceResult> UpdateAsync(string id, ShippingDto shippingDto)
         {
-            var shipping = await _repository.GetShipping(shippingId, false);
-            _repository.Remove(shipping);
-            await _unitOfWork.CompleteAsync();
+            try
+            {
+                var shippingId = id.ToGuid();
+                var shipping = await _repository.GetShipping(shippingId);
+                _mapper.Map(shippingDto, shipping);
+
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shipping));
+                }
+
+                var result = await GetSingleAsync(shipping.Id.ToString());
+                return new ServiceResult(payload: result.Payload);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }       
         }
 
-
-        public async Task<ShippingDto> UpdateAsync(Guid shippingId, ShippingDto shippingDto)
+        public async Task<IServiceResult> RemoveAsync(string id)
         {
-            var shipping = await _repository.GetShipping(shippingId);
-            _mapper.Map(shippingDto, shipping);
+            try
+            {
+                var shippingId = id.ToGuid();
 
-            await _unitOfWork.CompleteAsync();
+                var shipping = await _repository.GetShipping(shippingId, false);
+                if (shipping == null)
+                    throw new NotFoundException(nameof(shipping), shippingId);
 
-            return await Get(shipping.Id);
-        }
+                _repository.Remove(shipping);
+                if (!await _unitOfWork.CompleteAsync())
+                {
+                    throw new SaveFailedException(nameof(shipping));
+                }
+                return new ServiceResult();
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }           
+        }     
     }
 }

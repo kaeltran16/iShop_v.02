@@ -11,7 +11,7 @@ namespace iShop.Web.Extensions
             var error = modelState.Values.SelectMany(g => g.Errors)
                 .First(e => e.ErrorMessage != string.Empty || e.Exception != null);
 
-            return error.ErrorMessage != string.Empty ? error.ErrorMessage : error.Exception.Message;
+            return error.ErrorMessage != string.Empty ? error.ErrorMessage : error.Exception.ToString();
         }
     }
 }

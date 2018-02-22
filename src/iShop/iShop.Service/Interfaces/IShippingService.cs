@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using iShop.Common.DTOs;
+﻿using iShop.Common.DTOs;
+using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IShippingService
+    public interface IShippingService: IServiceBase<ShippingDto>
     {
-        Task<ShippingDto> CreateAsync(ShippingDto shippingDto);
-        Task<ShippingDto> Get(Guid id);
-        Task<IEnumerable<ShippingDto>> GetAll();
-        Task RemoveAsync(Guid shippingId);
-        Task<ShippingDto> UpdateAsync(Guid shippingId, ShippingDto shippingDto);
+        
     }
 }
