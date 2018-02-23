@@ -7,7 +7,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IShoppingCartService: IServiceBase<SavedShoppingCartDto>
+    public interface IShoppingCartService: ICrudServiceBase<SavedShoppingCartDto>, IServiceBase
     {
        
     }

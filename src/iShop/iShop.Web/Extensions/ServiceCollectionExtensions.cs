@@ -46,7 +46,7 @@ namespace iShop.Web.Extensions
 
         public static IServiceCollection AddConfigureSettings(this IServiceCollection services)
         {
-            //services.Configure<ImageSettings>(Startup.Configuration.GetSection("ImageSettings"));
+            services.Configure<ImageSettings>(Startup.Configuration.GetSection("ImageSettings"));
             return services;
         }
 

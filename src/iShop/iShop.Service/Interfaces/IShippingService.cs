@@ -3,7 +3,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IShippingService: IServiceBase<ShippingDto>
+    public interface IShippingService: ICrudServiceBase<ShippingDto>, IServiceBase
     {
         
     }

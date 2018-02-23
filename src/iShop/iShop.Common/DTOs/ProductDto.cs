@@ -5,7 +5,7 @@ using iShop.Common.Base;
 
 namespace iShop.Common.DTOs
 {
-    public class ProductDto: IBaseDto
+    public class ProductDto: ISavedBaseDto
     {
         public Guid Id { get; set; }      
         public string Sku { get; set; }

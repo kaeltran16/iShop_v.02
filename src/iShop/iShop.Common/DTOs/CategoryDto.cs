@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using iShop.Common.Base;
 
 namespace iShop.Common.DTOs
 {
-    public class CategoryDto
+    public class CategoryDto: ISavedBaseDto
     {
         public Guid Id { get; set; }
         [Required]

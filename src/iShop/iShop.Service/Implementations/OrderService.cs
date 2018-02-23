@@ -59,7 +59,7 @@ namespace iShop.Service.Implementations
         {
             try
             {
-                var orderId = id.ToGuid(nameof(id));
+                var orderId = id.ToGuid();
 
                 var order = await _repository.GetOrder(orderId);
                 if (order == null)
@@ -94,7 +94,7 @@ namespace iShop.Service.Implementations
         {
             try
             {
-                var orderId = id.ToGuid(nameof(id));
+                var orderId = id.ToGuid();
                 var order = await _repository.GetOrder(orderId);
                 _mapper.Map(orderDto, order);
 
@@ -118,7 +118,7 @@ namespace iShop.Service.Implementations
         {
             try
             {
-                var orderId = id.ToGuid(nameof(id));
+                var orderId = id.ToGuid();
 
                 var order = await _repository.GetOrder(orderId, false);
                 if (order == null)

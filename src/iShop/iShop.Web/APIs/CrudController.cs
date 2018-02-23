@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using iShop.Common.Base;
 using iShop.Common.Helpers;
 using iShop.Service.Base;
 using iShop.Web.Extensions;
@@ -7,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace iShop.Web.APIs
 {
     public abstract class CrudController<TService, TDto> : Controller
-    where TService: IServiceBase<TDto>
-    where TDto: class
+    where TService: ICrudServiceBase<TDto>
+    where TDto: class, ISavedBaseDto
     {
         private readonly TService _service;
 

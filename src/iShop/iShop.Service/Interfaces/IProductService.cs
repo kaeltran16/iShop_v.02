@@ -6,7 +6,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IProductService: IServiceBase<SavedProductDto>
+    public interface IProductService: ICrudServiceBase<SavedProductDto>, IServiceBase
     {
         void AddToInventory(Product product, Guid supplierId, int stock);
         void AddCategory(Product product, Guid categoryId);

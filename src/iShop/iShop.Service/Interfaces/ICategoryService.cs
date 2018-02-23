@@ -9,7 +9,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface ICategoryService: IServiceBase<CategoryDto>
+    public interface ICategoryService: ICrudServiceBase<CategoryDto>, IServiceBase
     {
         
     }

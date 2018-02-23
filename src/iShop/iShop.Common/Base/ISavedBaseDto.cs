@@ -4,7 +4,7 @@ using System.Text;
 
 namespace iShop.Common.Base
 {
-    public interface IBaseDto
+    public interface ISavedBaseDto
     {
     }
 }

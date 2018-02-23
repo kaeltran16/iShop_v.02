@@ -6,7 +6,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IOrderService: IServiceBase<SavedOrderDto>
+    public interface IOrderService: ICrudServiceBase<SavedOrderDto>, IServiceBase
     {
         
     }

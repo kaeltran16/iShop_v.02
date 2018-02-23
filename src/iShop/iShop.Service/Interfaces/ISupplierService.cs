@@ -7,7 +7,7 @@ using iShop.Service.Base;
 
 namespace iShop.Service.Interfaces
 {
-    public interface ISupplierService: IServiceBase<SupplierDto>
+    public interface ISupplierService: ICrudServiceBase<SupplierDto>, IServiceBase
     {
 
     }
