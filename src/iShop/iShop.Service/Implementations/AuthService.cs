@@ -1,46 +1,96 @@
-﻿//using System.Collections.Generic;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
 //using System.Threading.Tasks;
+//using AspNet.Security.OpenIdConnect.Extensions;
+//using AspNet.Security.OpenIdConnect.Primitives;
+//using AspNet.Security.OpenIdConnect.Server;
+//using iShop.Common.Exceptions;
+//using iShop.Data.Entities;
+//using iShop.Service.Commons;
 //using Microsoft.AspNetCore.Authentication;
-//using Microsoft.AspNetCore.Authorization;
 //using Microsoft.AspNetCore.Identity;
 //using Microsoft.AspNetCore.Mvc;
 //using Microsoft.Extensions.Options;
+//using OpenIddict.Core;
 
-//namespace iShop.Infras.API.APIs
+//namespace iShop.Service.Implementations
 //{
-//    /// <summary>
-//    /// This Controller is reponsible for creating and validating JWT
-//    /// </summary>
-//    public class AuthsController : Microsoft.AspNetCore.Mvc.Controller
+//    public class AuthService
 //    {
 //        private readonly IOptions<IdentityOptions> _identityOptions;
 //        private readonly SignInManager<ApplicationUser> _signInManager;
 //        private readonly UserManager<ApplicationUser> _userManager;
 
-//        public AuthsController(IOptions<IdentityOptions> identityOptions, SignInManager<ApplicationUser> signInManager,
-//            UserManager<ApplicationUser> userManager, JwtTokenSettings tokenSettings)
+//        public AuthService(IOptions<IdentityOptions> identityOptions, SignInManager<ApplicationUser> signInManager,
+//            UserManager<ApplicationUser> userManager)
 //        {
 //            _identityOptions = identityOptions;
 //            _signInManager = signInManager;
 //            _userManager = userManager;
 //        }
-//        /// <summary>
-//        /// Method for creating a new Token
-//        /// </summary>
-//        /// <param name="request"></param>
-//        /// <param name="user"></param>
-//        /// <param name="properties"></param>
-//        /// <returns>The new token or token that has been refreshed base on the input grant_type</returns>
-      
+//        private async Task<IServiceResult> CreateTicketAsync(OpenIdConnectRequest request, ApplicationUser user, AuthenticationProperties properties = null)
+//        {
+//            try
+//            {
+//                 var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
-//        /// <summary>
-//        /// Method for creating new Token for authenicated User or refresh the old one
-//        /// </summary>
-//        /// <param name="request"></param>
-//        /// <returns></returns>
-//        [AllowAnonymous]
-//        [HttpPost("~/connect/token")]
-//        public async Task<IActionResult> Exchange(OpenIdConnectRequest request)
+//            // Create a new authentication ticket holding the user identity.
+//            var ticket = new AuthenticationTicket(principal, properties,
+//                OpenIdConnectServerDefaults.AuthenticationScheme);
+
+//            // The token is a new one
+//            if (!request.IsRefreshTokenGrantType())
+//            {
+//                // Set the list of scopes granted to the client application.
+//                // Note: the offline_access scope must be granted
+//                // to allow OpenIddict to return a refresh token.
+//                ticket.SetScopes(new[]
+//                {
+//                    OpenIdConnectConstants.Scopes.OpenId,
+//                    OpenIdConnectConstants.Scopes.Email,
+//                    OpenIdConnectConstants.Scopes.OfflineAccess,
+//                    OpenIddictConstants.Scopes.Roles
+//                }.Intersect(request.GetScopes()));
+//            }
+
+//            ticket.SetResources("resource_server");
+
+//            // Adding Claims to the token
+//            foreach (var claim in ticket.Principal.Claims)
+//            {
+//                // Skip the SecurityStampClaim
+//                if (claim.Type == _identityOptions.Value.ClaimsIdentity.SecurityStampClaimType)
+//                {
+//                    continue;
+//                }
+
+//                var destinations = new List<string>
+//                {
+//                    OpenIdConnectConstants.Destinations.AccessToken
+//                };
+
+
+//                if ((claim.Type == OpenIdConnectConstants.Claims.Name && ticket.HasScope(OpenIdConnectConstants.Scopes.Profile)) ||
+//                    (claim.Type == OpenIdConnectConstants.Claims.Email && ticket.HasScope(OpenIdConnectConstants.Scopes.Email)) ||
+//                    (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddictConstants.Claims.Roles)))
+//                {
+//                    destinations.Add(OpenIdConnectConstants.Destinations.IdentityToken);
+//                }
+
+//                claim.SetDestinations(destinations);
+//            }
+//                return new ServiceResult(payload: ticket);
+//            }
+//            catch (Exception e)
+//            {
+//                return new ServiceResult(false, e.Message);
+//            }
+//            // Create a new ClaimsPrincipal containing the claims that
+//            // will be used to create an id_token, a token or a code.          
+//        }
+//        public async Task<IServiceResult> Exchange(OpenIdConnectRequest request)
 //        {
 //            // The grant_type is password, creating new token 
 //            if (request.IsPasswordGrantType())
@@ -51,11 +101,7 @@
 //                // Username is not existed
 //                if (user == null)
 //                {
-//                    return BadRequest(new OpenIdConnectResponse
-//                    {
-//                        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-//                        ErrorDescription = "The username/password couple is invalid."
-//                    });
+//                    throw new NotFoundException("The username/password couple is invalid.", null);
 //                }
 
 //                // Validate the username/password parameters and ensure the account is not locked out.
@@ -65,11 +111,7 @@
 //                // Username and password are match
 //                if (!result.Succeeded)
 //                {
-//                    return BadRequest(new OpenIdConnectResponse
-//                    {
-//                        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-//                        ErrorDescription = "The username/password couple is invalid."
-//                    });
+//                    return new ServiceResult(false, "The username/password couple is invalid.");
 //                }
 
 //                // Create a new authentication ticket.
@@ -123,10 +165,6 @@
 //            });
 //        }
 
-//        /// <summary>
-//        /// Log the user out
-//        /// </summary>
-//        /// <returns></returns>
 //        [HttpPost("~/connect/logout"), ValidateAntiForgeryToken]
 //        public async Task<IActionResult> Logout()
 //        {

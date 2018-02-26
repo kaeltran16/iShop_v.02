@@ -29,7 +29,7 @@ namespace iShop.Web
             services.AddCustomDbContext();
             services.AddCustomIdentity();
             services.AddCustomAuthenication();
-            services.AddCustomOpenIddict();
+            //services.AddCustomOpenIddict();
             services.AddCustomAuthorization();
             services.AddAutoMapper();
             services.AddCustomMvc();

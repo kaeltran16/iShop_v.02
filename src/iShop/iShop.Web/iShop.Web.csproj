@@ -12,10 +12,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
     <PackageReference Include="Joonasw.AspNetCore.SecurityHeaders" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.0-rc2" />
-    <PackageReference Include="OpenIddict" Version="2.0.0-rc1-final" />
-    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-rc1-final" />
-    <PackageReference Include="OpenIddict.Mvc" Version="2.0.0-rc1-final" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.0-rc3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +25,5 @@
     <ProjectReference Include="..\iShop.Repo\iShop.Repo.csproj" />
     <ProjectReference Include="..\iShop.Service\iShop.Service.csproj" />
   </ItemGroup>
-  <PropertyGroup>
-    <DefaultItemExcludes>.git\**;$(DefaultItemExcludes)</DefaultItemExcludes>
-  </PropertyGroup>
+
 </Project>

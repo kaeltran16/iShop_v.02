@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace iShop.Web.APIs
 {
-    public class UsersController : Controller
+    public class UserManagersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper)
+        public UserManagersController(UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             _userManager = userManager;
         }

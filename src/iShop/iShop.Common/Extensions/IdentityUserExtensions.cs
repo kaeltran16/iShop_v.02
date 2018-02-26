@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace iShop.Common.Extensions
@@ -12,9 +11,9 @@ namespace iShop.Common.Extensions
             if (principal == null)
                 throw new ArgumentNullException(nameof(principal));
 
-            var id = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var id = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            return Guid.Parse(id);
+            return id.ToGuid();
         }
     }
 }
