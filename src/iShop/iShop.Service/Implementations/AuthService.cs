@@ -1,182 +1,73 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using AspNet.Security.OpenIdConnect.Extensions;
-//using AspNet.Security.OpenIdConnect.Primitives;
-//using AspNet.Security.OpenIdConnect.Server;
-//using iShop.Common.Exceptions;
-//using iShop.Data.Entities;
-//using iShop.Service.Commons;
-//using Microsoft.AspNetCore.Authentication;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.Extensions.Options;
-//using OpenIddict.Core;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using iShop.Common.Exceptions;
+using iShop.Data.Entities;
+using iShop.Service.Commons;
+using iShop.Service.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
-//namespace iShop.Service.Implementations
-//{
-//    public class AuthService
-//    {
-//        private readonly IOptions<IdentityOptions> _identityOptions;
-//        private readonly SignInManager<ApplicationUser> _signInManager;
-//        private readonly UserManager<ApplicationUser> _userManager;
+namespace iShop.Service.Implementations
+{
+    public class AuthService : IAuthService
+    {   
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-//        public AuthService(IOptions<IdentityOptions> identityOptions, SignInManager<ApplicationUser> signInManager,
-//            UserManager<ApplicationUser> userManager)
-//        {
-//            _identityOptions = identityOptions;
-//            _signInManager = signInManager;
-//            _userManager = userManager;
-//        }
-//        private async Task<IServiceResult> CreateTicketAsync(OpenIdConnectRequest request, ApplicationUser user, AuthenticationProperties properties = null)
-//        {
-//            try
-//            {
-//                 var principal = await _signInManager.CreateUserPrincipalAsync(user);
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
+        public async Task<IServiceResult> Login(string username, string password)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(username);
+                if (user == null)
+                    throw new InvalidException("Username/Password");
+                var validationResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
-//            // Create a new authentication ticket holding the user identity.
-//            var ticket = new AuthenticationTicket(principal, properties,
-//                OpenIdConnectServerDefaults.AuthenticationScheme);
+                if (!validationResult.Succeeded)
+                    throw new InvalidException("Username/Password");
+                var token = GenerateToken(user);
+                return new ServiceResult(payload: token);
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+        }
 
-//            // The token is a new one
-//            if (!request.IsRefreshTokenGrantType())
-//            {
-//                // Set the list of scopes granted to the client application.
-//                // Note: the offline_access scope must be granted
-//                // to allow OpenIddict to return a refresh token.
-//                ticket.SetScopes(new[]
-//                {
-//                    OpenIdConnectConstants.Scopes.OpenId,
-//                    OpenIdConnectConstants.Scopes.Email,
-//                    OpenIdConnectConstants.Scopes.OfflineAccess,
-//                    OpenIddictConstants.Scopes.Roles
-//                }.Intersect(request.GetScopes()));
-//            }
+        private string GenerateToken(ApplicationUser user)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes("This is a secret key");
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                       new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                       new Claim(ClaimTypes.Name, user.UserName)
+                    }),
+                    Expires = DateTime.Now.AddDays(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+                };
 
-//            ticket.SetResources("resource_server");
+                var token = tokenHandler.CreateToken(tokenDescriptor);
 
-//            // Adding Claims to the token
-//            foreach (var claim in ticket.Principal.Claims)
-//            {
-//                // Skip the SecurityStampClaim
-//                if (claim.Type == _identityOptions.Value.ClaimsIdentity.SecurityStampClaimType)
-//                {
-//                    continue;
-//                }
+                return tokenHandler.WriteToken(token);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Some errors occured. Can not create new JWT. The error is {e.Message}");
+            }
 
-//                var destinations = new List<string>
-//                {
-//                    OpenIdConnectConstants.Destinations.AccessToken
-//                };
-
-
-//                if ((claim.Type == OpenIdConnectConstants.Claims.Name && ticket.HasScope(OpenIdConnectConstants.Scopes.Profile)) ||
-//                    (claim.Type == OpenIdConnectConstants.Claims.Email && ticket.HasScope(OpenIdConnectConstants.Scopes.Email)) ||
-//                    (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddictConstants.Claims.Roles)))
-//                {
-//                    destinations.Add(OpenIdConnectConstants.Destinations.IdentityToken);
-//                }
-
-//                claim.SetDestinations(destinations);
-//            }
-//                return new ServiceResult(payload: ticket);
-//            }
-//            catch (Exception e)
-//            {
-//                return new ServiceResult(false, e.Message);
-//            }
-//            // Create a new ClaimsPrincipal containing the claims that
-//            // will be used to create an id_token, a token or a code.          
-//        }
-//        public async Task<IServiceResult> Exchange(OpenIdConnectRequest request)
-//        {
-//            // The grant_type is password, creating new token 
-//            if (request.IsPasswordGrantType())
-//            {
-//                // Check if the username is in the database or not
-//                var user = await _userManager.FindByNameAsync(request.Username);
-
-//                // Username is not existed
-//                if (user == null)
-//                {
-//                    throw new NotFoundException("The username/password couple is invalid.", null);
-//                }
-
-//                // Validate the username/password parameters and ensure the account is not locked out.
-//                // Check the password associated with the username
-//                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
-
-//                // Username and password are match
-//                if (!result.Succeeded)
-//                {
-//                    return new ServiceResult(false, "The username/password couple is invalid.");
-//                }
-
-//                // Create a new authentication ticket.
-//                var ticket = await CreateTicketAsync(request, user);
-
-//                // Log the user in
-//                return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
-//            }
-
-//            // Refresh an old Token, more security measures may be added later
-//            else if (request.IsRefreshTokenGrantType())
-//            {
-//                // Retrieve the claims principal stored in the refresh token.
-//                var info = await HttpContext.AuthenticateAsync(OpenIdConnectServerDefaults.AuthenticationScheme);
-
-//                // Retrieve the user profile corresponding to the refresh token.
-//                // Note: if you want to automatically invalidate the refresh token
-//                // when the user password/roles change, use the following line instead:
-//                var user = await _signInManager.ValidateSecurityStampAsync(info.Principal);
-//                //var user = await _userManager.GetUserAsync(info.Principal);
-//                if (user == null)
-//                {
-//                    return BadRequest(new OpenIdConnectResponse
-//                    {
-//                        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-//                        ErrorDescription = "The refresh token is no longer valid."
-//                    });
-//                }
-
-//                // Ensure the user is still allowed to sign in.
-//                if (!await _signInManager.CanSignInAsync(user))
-//                {
-//                    return BadRequest(new OpenIdConnectResponse
-//                    {
-//                        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-//                        ErrorDescription = "The user is no longer allowed to sign in."
-//                    });
-//                }
-
-//                // Create a new authentication ticket, but reuse the properties stored
-//                // in the refresh token, including the scopes originally granted.
-//                var ticket = await CreateTicketAsync(request, user, info.Properties);
-
-//                return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
-//            }
-
-//            return BadRequest(new OpenIdConnectResponse
-//            {
-//                Error = OpenIdConnectConstants.Errors.UnsupportedGrantType,
-//                ErrorDescription = "The specified grant type is not supported."
-//            });
-//        }
-
-//        [HttpPost("~/connect/logout"), ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Logout()
-//        {
-//            // Ask ASP.NET Core Identity to delete the local and external cookies created
-//            // when the user agent is redirected from the external identity provider
-//            // after a successful authentication flow (e.g Google or Facebook).
-//            await _signInManager.SignOutAsync();
-
-//            // Returning a SignOutResult will ask OpenIddict to redirect the user agent
-//            // to the post_logout_redirect_uri specified by the client application.
-//            return SignOut(OpenIdConnectServerDefaults.AuthenticationScheme);
-//        }
-
-//    }
-//}
+        }
+    }
+}

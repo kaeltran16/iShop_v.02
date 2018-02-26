@@ -15,9 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Ardalis.GuardClauses">
-      <HintPath>..\..\..\..\..\..\.nuget\packages\ardalis.guardclauses\1.2.3\lib\netstandard1.1\Ardalis.GuardClauses.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Extensions.Identity.Stores">
       <HintPath>..\..\..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.identity.stores\2.0.1\lib\netstandard2.0\Microsoft.Extensions.Identity.Stores.dll</HintPath>
     </Reference>
