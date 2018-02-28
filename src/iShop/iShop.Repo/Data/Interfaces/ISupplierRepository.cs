@@ -8,8 +8,6 @@ namespace iShop.Repo.Data.Interfaces
 {
     public interface ISupplierRepository: IDataRepository<Supplier>
     {
-        Task<IEnumerable<Supplier>> GetSuppliers();
-        Task<Supplier> GetSupplier(Guid supplierId);
-
+       
     }
 }

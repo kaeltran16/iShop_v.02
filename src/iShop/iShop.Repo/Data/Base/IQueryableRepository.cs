@@ -12,7 +12,7 @@ namespace iShop.Repo.Data.Base
     public interface IQueryableRepository<T>: IDataRepository
         where T : class, IEntityBase
     {
-        Task<QueryResult<T>> GetAndFilterAsync(QueryObject queryTerm, bool isIncludeRelative = true);
-        Dictionary<string, Expression<Func<Product, object>>> CreateQueryTerms();
+        Task<QueryResult<T>> SortAndFilterAsync(QueryObject queryTerm, bool isIncludeRelative = true);
+        Dictionary<string, Expression<Func<T, object>>> CreateQueryTerms();
     }
 }

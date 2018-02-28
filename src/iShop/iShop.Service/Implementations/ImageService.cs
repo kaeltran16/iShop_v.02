@@ -40,7 +40,7 @@ namespace iShop.Service.Implementations
             try
             {   var productId = id.ToGuid();
 
-                var product = await _unitOfWork.GetRepository<ProductRepository>().GetProduct(productId);
+                var product = await _unitOfWork.GetRepository<ProductRepository>().GetSingleAsync(productId);
                 if (product == null)
                     throw new NotFoundException(nameof(product), productId);
 

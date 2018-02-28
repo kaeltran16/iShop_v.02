@@ -68,7 +68,7 @@ namespace iShop.Service.Implementations
             try
             {
                 var productId = id.ToGuid();
-                var product = await _repository.GetProduct(productId);
+                var product = await _repository.GetSingleAsync(productId);
 
                 if (product == null)
                     throw new NotFoundException(nameof(product), id);
@@ -87,8 +87,8 @@ namespace iShop.Service.Implementations
             try
             {
                 var products = queryTerm != null 
-                    ? _repository.GetAndFilterAsync(queryTerm).Result.Items 
-                    : await _repository.GetProducts();
+                    ? _repository.SortAndFilterAsync(queryTerm).Result.Items 
+                    : await _repository.GetAllAsync();
 
               
                 var productsDto = _mapper.Map<IEnumerable<Product>,
@@ -107,7 +107,7 @@ namespace iShop.Service.Implementations
             try
             {
                 var productId = id.ToGuid();
-                var product = await _repository.GetProduct(productId);
+                var product = await _repository.GetSingleAsync(productId);
                 _mapper.Map(productDto, product);
 
                 AddOrRemoveCategories(product, productDto);
@@ -131,7 +131,7 @@ namespace iShop.Service.Implementations
             try
             {
                 var productId = id.ToGuid();
-                var product = await _repository.GetProduct(productId, false);
+                var product = await _repository.GetSingleAsync(productId, false);
                 if (product == null)
                     throw new NotFoundException(nameof(product), productId);
 
@@ -184,7 +184,7 @@ namespace iShop.Service.Implementations
 
         public async Task RemoveCategory(Guid productId, Guid categoryId)
         {
-            var product = await _repository.GetProduct(productId);
+            var product = await _repository.GetSingleAsync(productId);
             if (product == null)
                 throw new NotFoundException(nameof(product), productId);
             product.RemoveCategory(categoryId);

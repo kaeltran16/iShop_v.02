@@ -8,7 +8,5 @@ namespace iShop.Repo.Data.Interfaces
 {
     public interface IShippingRepository : IDataRepository<Shipping>
     {
-        Task<Shipping> GetShipping(Guid id, bool isIncludeRelative = true);
-        Task<IEnumerable<Shipping>> GetShippings(bool isIncludeRelative = true);
     }
 }

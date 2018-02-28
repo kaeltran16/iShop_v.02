@@ -1,35 +1,34 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using iShop.Data.Entities;
-//using iShop.Repo.Data.Base;
-//using iShop.Repo.Data.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using iShop.Data.Entities;
+using iShop.Repo.Data.Base;
+using iShop.Repo.Data.Interfaces;
+using Microsoft.EntityFrameworkCore.Query;
 
-//namespace iShop.Repo.Data.Implementations
-//{
-//    public class CategoryRepository : DataRepositoryBase<Category>, ICategoryRepository
-//    {
-//        public CategoryRepository(ApplicationDbContext context)
-//            : base(context)
-//        {        
-//        }
+namespace iShop.Repo.Data.Implementations
+{
+    public class CategoryRepository : DataRepositoryBase<Category>, ICategoryRepository
+    {
+        public CategoryRepository(ApplicationDbContext context)
+            : base(context)
+        {
+        }
 
-//        public async Task<Category> GetCategory(Guid id)
-//        {
-//            var spec = 
-//                new Specification<Category>(predicate: c => c.Id == id, includes: null);
+        public override Func<IQueryable<Category>, IIncludableQueryable<Category, object>> CreateInclusiveRelatives()
+        {
+            return null;
+        }
 
-//            return await GetSingleAsync(spec);
-//        }
-
-//        public async Task<IEnumerable<Category>> GetCategories()
-//        {
-//            var spec = 
-//                new Specification<Category>(predicate: null, includes: null); 
-
-//            return await GetAllAsync(spec);
-//        }
-
-
-//    }
-//}
+        public override Dictionary<string, Expression<Func<Category, object>>> CreateQueryTerms()
+        {
+            var columnMap =
+                new Dictionary<string, Expression<Func<Category, object>>>
+                {
+                    {"name", p => p.Name}
+                };
+            return columnMap;
+        }
+    }
+}

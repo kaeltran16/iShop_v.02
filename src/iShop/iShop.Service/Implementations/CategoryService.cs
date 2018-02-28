@@ -5,6 +5,7 @@
 //using iShop.Common.DTOs;
 //using iShop.Common.Exceptions;
 //using iShop.Common.Extensions;
+//using iShop.Common.Helpers;
 //using iShop.Data.Entities;
 //using iShop.Repo.Data.Interfaces;
 //using iShop.Repo.UnitOfWork.Interfaces;
@@ -26,16 +27,16 @@
 //            _repository = _unitOfWork.GetRepository<ICategoryRepository>();
 //        }
 
-//        public async Task<IServiceResult> CreateAsync(CategoryDto categoryDto) 
+//        public async Task<IServiceResult> CreateAsync(CategoryDto categoryDto)
 //        {
 //            try
-//            {  
+//            {
 //                var category = _mapper.Map<CategoryDto, Category>(categoryDto);
 //                await _repository.AddAsync(category);
 //                if (!await _unitOfWork.CompleteAsync())
 //                {
 //                    throw new SaveFailedException(nameof(category));
-//                }               
+//                }
 //                var result = await GetSingleAsync(category.Id.ToString());
 //                return new ServiceResult(payload: result.Payload);
 //            }
@@ -43,7 +44,7 @@
 //            {
 //                return new ServiceResult(false, e.Message);
 //            }
-          
+
 //        }
 
 //        public async Task<IServiceResult> GetSingleAsync(string id)
@@ -62,14 +63,18 @@
 //            catch (Exception e)
 //            {
 //                return new ServiceResult(false, e.Message);
-//            }          
+//            }
 //        }
 
-//        public async Task<IServiceResult> GetAllAsync()
+
+//        public async Task<IServiceResult> GetAllAsync(QueryObject queryTerm = null)
 //        {
 //            try
 //            {
-//                var categories = await _repository.GetCategories();
+//                var categories = queryTerm != null 
+//                    ? _repository.GetAndFilterAsync(queryTerm).Result.Items 
+//                    : await _repository.GetCategories();
+                
 //                var categoriesDto = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDto>>(categories);
 
 //                return new ServiceResult(payload: categoriesDto);
@@ -77,7 +82,7 @@
 //            catch (Exception e)
 //            {
 //                return new ServiceResult(false, e.Message);
-//            }          
+//            }
 //        }
 
 //        public async Task<IServiceResult> UpdateAsync(string id, CategoryDto categoryDto)
@@ -85,21 +90,21 @@
 //            try
 //            {
 //                var categoryId = id.ToGuid();
-            
+
 //                var category = await _repository.GetCategory(categoryId);
 
 //                _mapper.Map(categoryDto, category);
 //                if (!await _unitOfWork.CompleteAsync())
 //                {
 //                    throw new SaveFailedException(nameof(category));
-//                }              
+//                }
 //                var result = await GetSingleAsync(category.Id.ToString());
 //                return new ServiceResult(payload: result.Payload);
 //            }
 //            catch (Exception e)
 //            {
 //                return new ServiceResult(false, e.Message);
-//            }       
+//            }
 //        }
 
 //        public async Task<IServiceResult> RemoveAsync(string id)
@@ -123,7 +128,7 @@
 //            {
 //                return new ServiceResult(false, e.Message);
 //            }
-           
+
 //        }
 //    }
 //}

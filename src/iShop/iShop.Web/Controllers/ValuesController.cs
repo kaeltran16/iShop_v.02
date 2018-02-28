@@ -21,7 +21,7 @@ namespace iShop.Web.Controllers
         public async Task<IActionResult> Get()
         {
             var repo = _unitOfWork.GetRepository<IProductRepository>();
-            var category = await repo.GetProducts();
+            var category = await repo.GetAllAsync();
             return Ok(category);
         }
 

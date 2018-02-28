@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
-using iShop.Common.Extensions;
-using iShop.Common.Helpers;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
 using iShop.Repo.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Implementations
 {
@@ -16,46 +15,20 @@ namespace iShop.Repo.Data.Implementations
 
         public ProductRepository(ApplicationDbContext context)
             : base(context)
+        { 
+        }
+
+        public override Func<IQueryable<Product>, IIncludableQueryable<Product, object>> CreateInclusiveRelatives()
         {
+            return product => product
+                .Include(p => p.ProductCategories)
+                .ThenInclude(c => c.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Inventory)
+                .ThenInclude(i => i.Supplier);
         }
 
-        public async Task<Product> GetProduct(Guid id, bool isIncludeRelative = true)
-        {
-            ISpecification<Product> spec = isIncludeRelative
-                ? new Specification<Product>(predicate: o => o.Id == id,
-                    includes: source => source
-                        .Include(p => p.ProductCategories)
-                        .ThenInclude(c => c.Category)
-                        .Include(p => p.Images)
-                        .Include(p => p.Inventory)
-                        .ThenInclude(i => i.Supplier))
-                : new Specification<Product>(predicate: o => o.Id == id, includes: null);
-            return await Get(spec).SingleOrDefaultAsync();
-        }
-
-       public async Task<IEnumerable<Product>> GetProducts(bool isIncludeRelative)
-       {
-           var spec = isIncludeRelative 
-               ? CreateInclusiveRelatives() 
-               : new Specification<Product>(null, null);
-
-            return await Get(spec).ToListAsync();
-        }
-
-        public ISpecification<Product> CreateInclusiveRelatives()
-        {
-            var spec = new Specification<Product>(predicate: null,
-                includes: source => source
-                    .Include(p => p.ProductCategories)
-                    .ThenInclude(c => c.Category)
-                    .Include(p => p.Images)
-                    .Include(p => p.Inventory)
-                    .ThenInclude(i => i.Supplier));
-            return spec;
-        }
-
-
-        public Dictionary<string, Expression<Func<Product, object>>> CreateQueryTerms()
+        public override Dictionary<string, Expression<Func<Product, object>>> CreateQueryTerms()
         {
             var columnMap =
                 new Dictionary<string, Expression<Func<Product, object>>>
@@ -67,21 +40,6 @@ namespace iShop.Repo.Data.Implementations
                     {"price", p => p.Price}
                 };
             return columnMap;
-        }
-
-        public async Task<QueryResult<Product>> GetAndFilterAsync(QueryObject queryTerm, bool isIncludeRelative = true)
-        {
-            var spec = isIncludeRelative 
-                ? CreateInclusiveRelatives() 
-                : new Specification<Product>(null, null);
-            var query = Get(spec);
-
-            var columnMap = CreateQueryTerms();
-            query = query.ApplyPaging(queryTerm);
-            query = query.ApplyOrdering(queryTerm, columnMap);
-            var result =
-                new QueryResult<Product>() { Items = await query.ToListAsync(), TotalItem = await query.CountAsync() };
-            return result;
         }
     }
 }
