@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using iShop.Common.Base;
+using iShop.Common.Helpers;
 using iShop.Service.Commons;
 
 namespace iShop.Service.Base
@@ -9,7 +10,7 @@ namespace iShop.Service.Base
     {
         Task<IServiceResult> CreateAsync(TDto dto);
         Task<IServiceResult> GetSingleAsync(string id);
-        Task<IServiceResult> GetAllAsync();
+        Task<IServiceResult> GetAllAsync(QueryObject queryTerm);
         Task<IServiceResult> UpdateAsync(string id, TDto dto);
         Task<IServiceResult> RemoveAsync(string id);
     }

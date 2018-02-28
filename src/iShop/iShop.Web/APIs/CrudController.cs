@@ -44,9 +44,9 @@ namespace iShop.Web.APIs
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync(QueryObject queryTerm)
         {
-            var result = await _service.GetAllAsync();
+            var result = await _service.GetAllAsync(queryTerm);
 
             return result.IsSuccess
                 ? Ok(result.Payload)

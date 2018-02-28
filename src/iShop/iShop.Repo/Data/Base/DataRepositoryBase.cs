@@ -17,30 +17,14 @@ namespace iShop.Repo.Data.Base
         }
 
 
-        public async Task<IEnumerable<T>> GetAllAsync(ISpecification<T> spec)
+        public IQueryable<T> Get(ISpecification<T> spec)
         {
             IQueryable<T> query = Context.Set<T>();
             if (spec.Includes != null)
                 query = spec.Includes(query);
 
-            if (spec.Predicate != null)
-                return await query.Where(spec.Predicate).ToListAsync();
-
-            return await query.ToListAsync();
+            return spec.Predicate != null ? query.Where(spec.Predicate) : query;
         }
-
-        public async Task<T> GetSingleAsync(ISpecification<T> spec)
-        {
-            IQueryable<T> query = Context.Set<T>();
-            if (spec.Includes != null)
-                query = spec.Includes(query);
-
-            if (spec.Predicate != null)
-                return await query.SingleOrDefaultAsync(spec.Predicate);
-
-            return await query.SingleOrDefaultAsync();
-        }
-
         
         public async Task<T> AddAsync(T entity)
         {

@@ -6,6 +6,7 @@ using AutoMapper;
 using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
+using iShop.Common.Helpers;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
@@ -28,7 +29,7 @@ namespace iShop.Service.Implementations
             _mapper = mapper;
             _repository = _unitOfWork.GetRepository<IProductRepository>();
         }
-      
+
         public async Task<IServiceResult> CreateAsync(SavedProductDto productDto)
         {
             try
@@ -59,7 +60,7 @@ namespace iShop.Service.Implementations
             {
                 return new ServiceResult(false, e.Message);
             }
-        
+
         }
 
         public async Task<IServiceResult> GetSingleAsync(string id)
@@ -77,15 +78,19 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
-               return new ServiceResult(false, e.Message);
-            }         
+                return new ServiceResult(false, e.Message);
+            }
         }
 
-        public async Task<IServiceResult> GetAllAsync()
+        public async Task<IServiceResult> GetAllAsync(QueryObject queryTerm = null)
         {
             try
             {
-                var products = await _repository.GetProducts();
+                var products = queryTerm != null 
+                    ? _repository.GetAndFilterAsync(queryTerm).Result.Items 
+                    : await _repository.GetProducts();
+
+              
                 var productsDto = _mapper.Map<IEnumerable<Product>,
                     IEnumerable<ProductDto>>(products);
 
@@ -94,7 +99,7 @@ namespace iShop.Service.Implementations
             catch (Exception e)
             {
                 return new ServiceResult(false, e.Message);
-            }           
+            }
         }
 
         public async Task<IServiceResult> UpdateAsync(string id, SavedProductDto productDto)
@@ -104,7 +109,7 @@ namespace iShop.Service.Implementations
                 var productId = id.ToGuid();
                 var product = await _repository.GetProduct(productId);
                 _mapper.Map(productDto, product);
-              
+
                 AddOrRemoveCategories(product, productDto);
                 if (!await _unitOfWork.CompleteAsync())
                 {
@@ -118,7 +123,7 @@ namespace iShop.Service.Implementations
             {
                 return new ServiceResult(false, e.Message);
             }
-           
+
         }
 
         public async Task<IServiceResult> RemoveAsync(string id)
@@ -141,7 +146,7 @@ namespace iShop.Service.Implementations
             {
                 return new ServiceResult(false, e.Message);
             }
-          
+
         }
 
         private void AddOrRemoveCategories(Product product, SavedProductDto productDto)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using iShop.Data.Base;
 
@@ -9,10 +10,7 @@ namespace iShop.Repo.Data.Base
     public interface IDataRepository<T> : IDataRepository
         where T : class, IEntityBase
     {
-        Task<IEnumerable<T>> GetAllAsync(ISpecification<T> spec);
-
-        Task<T> GetSingleAsync(ISpecification<T> spec);
-
+        IQueryable<T> Get(ISpecification<T> spec);
         Task<T> AddAsync(T entity);
 
         void Remove(T entity);

@@ -22,23 +22,23 @@ namespace iShop.Web.Extensions
     {
         public static IServiceCollection AddDependencies(this IServiceCollection services)
         {
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            //services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-            services.AddScoped<IImagesRepository, ImageRepository>();
-            services.AddScoped<ISupplierRepository, SupplierRepository>();
-            services.AddScoped<IShippingRepository, ShippingRepository>();
+            //services.AddScoped<IOrderRepository, OrderRepository>();
+            //services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+            //services.AddScoped<IImagesRepository, ImageRepository>();
+            //services.AddScoped<ISupplierRepository, SupplierRepository>();
+            //services.AddScoped<IShippingRepository, ShippingRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IImageService, ImageService>();
-            services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IShippingService, ShippingService>();
-            services.AddScoped<IShoppingCartService, ShoppingCartService>();
-            services.AddScoped<ISupplierService, SupplierService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IAccountService, AccountService>();
+            //services.AddScoped<ICategoryService, CategoryService>();
+            //services.AddScoped<IImageService, ImageService>();
+            //services.AddScoped<IOrderService, OrderService>();
+            //services.AddScoped<IShippingService, ShippingService>();
+            //services.AddScoped<IShoppingCartService, ShoppingCartService>();
+            //services.AddScoped<ISupplierService, SupplierService>();
+            //services.AddScoped<IAuthService, AuthService>();
+            //services.AddScoped<IAccountService, AccountService>();
 
             return services;
         }
