@@ -13,11 +13,6 @@ namespace iShop.Data.Entities
         public ICollection<Cart> Carts { get; set; } = new Collection<Cart>();
         public DateTime PlacedDate { get; set; } = DateTime.Now;
 
-        public ShoppingCart()
-        {
-            
-        }
-
         public void AddItem(Guid productId, int quantity)
         {
             var cartItem = Carts.SingleOrDefault(o => o.ProductId == productId && o.ShoppingCartId == Id);

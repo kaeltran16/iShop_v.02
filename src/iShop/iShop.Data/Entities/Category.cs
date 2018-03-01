@@ -11,10 +11,5 @@ namespace iShop.Data.Entities
         public string Short { get; set; }
         public ICollection<ProductCategory> ProductCategories { get; set; }
             = new Collection<ProductCategory>();
-
-        public Category()
-        {
-
-        }
     }
 }
