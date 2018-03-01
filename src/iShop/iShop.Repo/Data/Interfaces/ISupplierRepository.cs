@@ -6,7 +6,7 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface ISupplierRepository: IDataRepository<Supplier>
+    public interface ISupplierRepository: IDataRepository<Supplier>, IQueryableRepository<Supplier>
     {
        
     }

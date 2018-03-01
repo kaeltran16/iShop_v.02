@@ -77,7 +77,7 @@ namespace iShop.Service.Implementations
             {
                 var imageId = id.ToGuid();
 
-                var image = await _repository.Get(imageId, true);
+                var image = await _repository.GetSingleAsync(imageId, true);
                 if (image == null)
                     throw new NotFoundException(nameof(image), imageId);
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using iShop.Data.Base;
-using iShop.Data.Entities;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Base

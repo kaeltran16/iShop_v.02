@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using iShop.Common.Helpers;
 using iShop.Data.Base;
-using iShop.Data.Entities;
 
 namespace iShop.Repo.Data.Base
 {
