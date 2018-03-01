@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace iShop.Repo.Mapping
+namespace iShop.Service.Mapping
 {
     public abstract class BaseProfile : Profile
     {

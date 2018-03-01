@@ -1,7 +1,7 @@
 ﻿using iShop.Common.DTOs;
 using iShop.Data.Entities;
 
-namespace iShop.Repo.Mapping
+namespace iShop.Service.Mapping
 {
     public class CategoryProfile: BaseProfile
     {

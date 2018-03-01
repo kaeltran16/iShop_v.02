@@ -24,7 +24,7 @@ namespace iShop.Repo
         public DbSet<Supplier> Suppliers { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            :base((DbContextOptions) options)
+            :base(options)
         {   
         }
 

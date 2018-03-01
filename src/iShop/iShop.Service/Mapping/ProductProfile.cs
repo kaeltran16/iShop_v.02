@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using AutoMapper;
 using iShop.Common.DTOs;
 using iShop.Data.Entities;
 
-namespace iShop.Repo.Mapping
+namespace iShop.Service.Mapping
 {
     public class ProductProfile : BaseProfile
     {
@@ -14,7 +13,7 @@ namespace iShop.Repo.Mapping
             CreateMap<Product, ProductDto>()
                 .ForMember(pr => pr.Categories,
                     opt => opt.MapFrom(p =>
-                        p.ProductCategories.Select(pc => pc.Category)))
+                        Enumerable.Select<ProductCategory, Category>(p.ProductCategories, pc => pc.Category)))
                 .ForMember(pr => pr.Supplier, opt => opt.MapFrom(p => p.Inventory.Supplier))
                 .ForAllMembers(opt => opt.Condition(
                     (src, des, srcMbr, desMbr) => (srcMbr != null)));

@@ -25,7 +25,7 @@ namespace iShop.Repo.UnitOfWork.Implementations
             {
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(s => s.GetTypes())
-                    .Where(p => typeof(TRepository).IsAssignableFrom(p) && !p.IsAbstract);
+                    .Where(p => typeof(TRepository).IsAssignableFrom(p) && !p.IsAbstract && p.IsClass);
                 var concreteType = types.Single();
                 repository = (TRepository)Activator.CreateInstance(concreteType, _context);
 

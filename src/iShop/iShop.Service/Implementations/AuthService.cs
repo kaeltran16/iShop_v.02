@@ -7,9 +7,8 @@ using iShop.Common.Exceptions;
 using iShop.Data.Entities;
 using iShop.Service.Commons;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.AspNetCore.Identity;
 namespace iShop.Service.Implementations
 {
     public class AuthService : IAuthService

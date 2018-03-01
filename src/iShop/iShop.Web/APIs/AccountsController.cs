@@ -1,14 +1,6 @@
-﻿using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
-using iShop.Common.DTOs;
-using iShop.Common.Helpers;
-using iShop.Data.Entities;
+﻿using iShop.Common.DTOs;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {

@@ -2,7 +2,7 @@
 using iShop.Common.DTOs;
 using iShop.Data.Entities;
 
-namespace iShop.Repo.Mapping
+namespace iShop.Service.Mapping
 {
     public class ShoppingCartProfile : BaseProfile
     {
@@ -13,7 +13,7 @@ namespace iShop.Repo.Mapping
             CreateMap<ShoppingCart, SavedShoppingCartDto>();
             CreateMap<ShoppingCart, ShoppingCartDto>()
                 .ForMember(or => or.Carts, opt => opt.MapFrom(p =>
-                    p.Carts.Select(pc => new Cart() {ProductId = pc.ProductId, Quantity = pc.Quantity})));
+                    Enumerable.Select<Cart, Cart>(p.Carts, pc => new Cart() {ProductId = pc.ProductId, Quantity = pc.Quantity})));
 
             CreateMap<ShoppingCartDto, ShoppingCart>()
                 .ForMember(p => p.Id, opt => opt.Ignore())
@@ -24,13 +24,13 @@ namespace iShop.Repo.Mapping
                 .ForMember(o => o.Carts, opt => opt.MapFrom(c => c.Carts))
                 .AfterMap((sr, s) =>
                 {
-                    var addedCarts = sr.Carts.Where(cr => s.Carts.All(c => c.ProductId != cr.ProductId))
+                    var addedCarts = Enumerable.Where<CartDto>(sr.Carts, cr => Enumerable.All<Cart>(s.Carts, c => c.ProductId != cr.ProductId))
                         .Select(cr => new Cart() { ProductId = cr.ProductId, Quantity = cr.Quantity, ShoppingCartId = sr.Id }).ToList();
                     foreach (var c in addedCarts)
                         s.Carts.Add(c);
 
                     var removedCartItems =
-                        s.Carts.Where(oi => sr.Carts.Any(oir=>oir.ProductId!=oi.ProductId)).ToList();
+                        Enumerable.Where<Cart>(s.Carts, oi => Enumerable.Any<CartDto>(sr.Carts, oir=>oir.ProductId!=oi.ProductId)).ToList();
                     foreach (var oi in removedCartItems)
                         s.Carts.Remove(oi);
                 });

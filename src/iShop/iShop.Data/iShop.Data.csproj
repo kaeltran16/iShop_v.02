@@ -11,13 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\iShop.Common\iShop.Common.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.1.0-preview1-final" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Identity.Stores">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.identity.stores\2.0.1\lib\netstandard2.0\Microsoft.Extensions.Identity.Stores.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\iShop.Common\iShop.Common.csproj" />
   </ItemGroup>
-
 </Project>
