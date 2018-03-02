@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class InvoiceDto
     {

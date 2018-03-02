@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using iShop.Common.DTOs;
 using iShop.Data.Entities;
 using iShop.Service.Base;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Interfaces
 {

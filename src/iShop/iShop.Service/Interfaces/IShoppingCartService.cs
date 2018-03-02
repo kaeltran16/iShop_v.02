@@ -1,5 +1,5 @@
-﻿using iShop.Common.DTOs;
-using iShop.Service.Base;
+﻿using iShop.Service.Base;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Interfaces
 {

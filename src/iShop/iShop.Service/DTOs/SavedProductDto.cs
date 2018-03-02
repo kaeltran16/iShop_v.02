@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using iShop.Common.Base;
 using iShop.Common.DataAnnotations;
+using iShop.Data.Entities;
+using iShop.Service.Base;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class SavedProductDto: ISavedBaseDto
     {

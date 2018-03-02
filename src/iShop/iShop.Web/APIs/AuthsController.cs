@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
-using iShop.Common.DTOs;
 using iShop.Common.Helpers;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
@@ -13,19 +14,23 @@ namespace iShop.Web.APIs
     public class AuthsController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthsController> _logger;
 
-        public AuthsController(IAuthService authService)
+        public AuthsController(IAuthService authService, ILogger<AuthsController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
         [HttpPost("token")]
         public async Task<IActionResult> Token([FromBody] LoginDto dto)
         {
             var result = await _authService.Login(dto.Username, dto.Password);
 
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            if (result.IsSuccess) 
+                return Ok(result.Payload);
+
+            _logger.LogError($"Request creating new token failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
         }
     }
 }

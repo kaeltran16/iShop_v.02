@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
 using iShop.Common.Helpers;
@@ -11,7 +10,9 @@ using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 using iShop.Service.Commons;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Service.Implementations
 {
@@ -19,12 +20,14 @@ namespace iShop.Service.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<OrderService> _logger;
         private readonly IOrderRepository _repository;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<OrderService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
             _repository = _unitOfWork.GetRepository<IOrderRepository>();
         }
 
@@ -39,18 +42,22 @@ namespace iShop.Service.Implementations
                 foreach (var orderItem in orderDto.OrderedItems)
                 {
                     order.AddItem(orderItem.ProductId, orderItem.Quantity);
+                    _logger.LogError($"Added product with id {orderItem.ProductId} to order with id {order.Id}.");
                 }
 
                 if (!await _unitOfWork.CompleteAsync())
                 {
                     throw new SaveFailedException(nameof(order));
                 }
+                _logger.LogInformation($"Added new {nameof(order)} with id: {order.Id}.");
 
                 var result = await GetSingleAsync(order.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Adding new order failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -71,6 +78,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting a order with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -80,8 +89,8 @@ namespace iShop.Service.Implementations
         {
             try
             {
-                var orders = queryTerm != null 
-                    ? _repository.SortAndFilterAsync(queryTerm).Result.Items 
+                var orders = queryTerm != null
+                    ? _repository.SortAndFilterAsync(queryTerm).Result.Items
                     : await _repository.GetAllAsync();
 
                 var ordersDto = _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDto>>(orders);
@@ -90,6 +99,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting all orders failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -108,12 +119,15 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(order));
                 }
+                _logger.LogInformation($"Updated {nameof(order)} with id: {order.Id}");
 
                 var result = await GetSingleAsync(order.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Updating order with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -134,10 +148,14 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(order));
                 }
+                _logger.LogInformation($"Delete {nameof(order)} with id: {order.Id}");
+
                 return new ServiceResult();
             }
             catch (Exception e)
             {
+                _logger.LogError($"Deleting category with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -145,18 +163,25 @@ namespace iShop.Service.Implementations
 
         private void AddOrRemoveOrderedItems(Order order, SavedOrderDto orderDto)
         {
-            var addedOrderItems =
-                orderDto.OrderedItems.Where(oid => order.OrderedItems.All(oi => oi.ProductId != oid.ProductId))
+            try
+            {
+                var addedOrderItems =
+                    orderDto.OrderedItems.Where(oid => order.OrderedItems.All(oi => oi.ProductId != oid.ProductId))
+                        .ToList();
+                foreach (var orderItemDto in addedOrderItems)
+                    order.AddItem(orderItemDto.ProductId, orderItemDto.Quantity);
 
-                    .ToList();
-            foreach (var orderItemDto in addedOrderItems)
-                order.AddItem(orderItemDto.ProductId, orderItemDto.Quantity);
+                var removedOrderedItems =
+                    order.OrderedItems.Where(oi => orderDto.OrderedItems.Any(oir => oir.ProductId != oi.ProductId))
+                        .ToList();
+                foreach (var item in removedOrderedItems)
+                    order.RemoveItem(item);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
 
-            var removedOrderedItems =
-                order.OrderedItems.Where(oi => orderDto.OrderedItems.Any(oir => oir.ProductId != oi.ProductId))
-                    .ToList();
-            foreach (var item in removedOrderedItems)
-                order.RemoveItem(item);
         }
 
     }

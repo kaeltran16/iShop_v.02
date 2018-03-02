@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
 using iShop.Common.Helpers;
@@ -10,7 +9,9 @@ using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 using iShop.Service.Commons;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Service.Implementations
 {
@@ -18,12 +19,14 @@ namespace iShop.Service.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<SupplierService> _logger;
         private readonly ISupplierRepository _repository;
 
-        public SupplierService(IUnitOfWork unitOfWork, IMapper mapper)
-        {
+        public SupplierService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<SupplierService> logger)
+        { 
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
             _repository = _unitOfWork.GetRepository<ISupplierRepository>();
         }
 
@@ -38,12 +41,15 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(supplier));
                 }
+                _logger.LogInformation($"Added new {nameof(supplier)} with id: {supplier.Id}");
 
                 var result = await GetSingleAsync(supplier.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Adding new supplier failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -64,6 +70,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting a supplier with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -82,6 +90,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting all suppliers failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -98,11 +108,15 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(supplier));
                 }
+                _logger.LogInformation($"Updated {nameof(supplier)} with id: {supplier.Id}");
+
                 var result = await GetSingleAsync(supplier.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Updating supplier with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -123,10 +137,14 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(supplier));
                 }
+                _logger.LogInformation($"Delete {nameof(supplier)} with id: {supplier.Id}");
+
                 return new ServiceResult();
             }
             catch (Exception e)
             {
+                _logger.LogError($"Deleting supplier with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }

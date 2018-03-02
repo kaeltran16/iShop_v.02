@@ -21,16 +21,15 @@ namespace iShop.Repo.UnitOfWork.Implementations
         public TRepository GetRepository<TRepository>() 
             where TRepository : IDataRepository
         {
-            if (!_repositories.TryGetValue(typeof(TRepository), out var repository))
-            {
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(s => s.GetTypes())
-                    .Where(p => typeof(TRepository).IsAssignableFrom(p) && !p.IsAbstract && p.IsClass);
-                var concreteType = types.Single();
-                repository = (TRepository)Activator.CreateInstance(concreteType, _context);
+            if (_repositories.TryGetValue(typeof(TRepository), out var repository)) 
+                return (TRepository) repository;
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => typeof(TRepository).IsAssignableFrom(p) && !p.IsAbstract && p.IsClass);
+            var concreteType = types.Single();
+            repository = (TRepository)Activator.CreateInstance(concreteType, _context);
 
-                _repositories.Add(typeof(TRepository), repository);
-            }
+            _repositories.Add(typeof(TRepository), repository);
 
             return (TRepository) repository;
         }

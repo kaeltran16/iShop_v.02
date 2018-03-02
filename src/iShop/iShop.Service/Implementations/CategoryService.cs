@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
 using iShop.Common.Helpers;
@@ -10,7 +9,9 @@ using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 using iShop.Service.Commons;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Service.Implementations
 {
@@ -18,12 +19,14 @@ namespace iShop.Service.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<CategoryService> _logger;
         private readonly ICategoryRepository _repository;
 
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CategoryService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
             _repository = _unitOfWork.GetRepository<ICategoryRepository>();
         }
 
@@ -37,11 +40,13 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(category));
                 }
+                _logger.LogInformation($"Added new {nameof(category)} with id: {category.Id}.");
                 var result = await GetSingleAsync(category.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Adding new category failed. {e.Message}");
                 return new ServiceResult(false, e.Message);
             }
 
@@ -62,6 +67,7 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting a category with id: {id} failed. {e.Message}");
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -81,6 +87,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting all categories failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -98,11 +106,14 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(category));
                 }
+                _logger.LogInformation($"Updated {nameof(category)} with id: {category.Id}.");
                 var result = await GetSingleAsync(category.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Updating category with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -121,11 +132,15 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(category));
                 }
+                _logger.LogInformation($"Delete {nameof(category)} with id: {category.Id}.");
+
                 return new ServiceResult();
 
             }
             catch (Exception e)
             {
+                _logger.LogError($"Deleting category with id: {id} failed.", e.Message);
+
                 return new ServiceResult(false, e.Message);
             }
 

@@ -1,5 +1,5 @@
-﻿using iShop.Common.DTOs;
-using iShop.Data.Entities;
+﻿using iShop.Data.Entities;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Mapping
 {

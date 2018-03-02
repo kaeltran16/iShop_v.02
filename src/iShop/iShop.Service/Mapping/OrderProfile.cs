@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using iShop.Common.DTOs;
 using iShop.Data.Entities;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Mapping
 {
@@ -12,7 +12,7 @@ namespace iShop.Service.Mapping
 
             CreateMap<Order, OrderDto>()
                 .ForMember(or => or.OrderedItems, opt => opt.MapFrom(p =>
-                    Enumerable.Select<OrderedItem, OrderedItem>(p.OrderedItems, pc => new OrderedItem() { ProductId = pc.ProductId, Quantity = pc.Quantity })))
+                    p.OrderedItems.Select(pc => new OrderedItem { ProductId = pc.ProductId, Quantity = pc.Quantity })))
                 .ForMember(or => or.Shipping, opt => opt.MapFrom(o => o.Shipping))
                 .ForMember(or => or.Invoice, opt => opt.MapFrom(o => o.Invoice));
 

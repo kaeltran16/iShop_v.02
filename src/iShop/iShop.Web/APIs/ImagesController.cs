@@ -4,6 +4,7 @@ using iShop.Service.Interfaces;
 using iShop.Web.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
@@ -14,19 +15,24 @@ namespace iShop.Web.APIs
     public class ImagesController : Controller
     {
         private readonly IImageService _imageService;
+        private readonly ILogger<ImagesController> _logger;
 
-        public ImagesController(IImageService imageService)
+        public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
         {
             _imageService = imageService;
+            _logger = logger;
         }
         //[Authorize(Policy = ApplicationConstants.PolicyName.SuperUsers)]
         [HttpPost]
         public async Task<IActionResult> UploadAsync(string productId, IFormFile file)
         {
             var result = await _imageService.UploadAsync(productId, file);
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Uploading image with id: {result.Payload.Id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
         //[HttpGet("{productId}")]
@@ -43,9 +49,12 @@ namespace iShop.Web.APIs
         public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await _imageService.RemoveAsync(id);
-            return result.IsSuccess
-                ? Ok(id)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());     
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Deleting image with id: {result.Payload.Id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using iShop.Common.Base;
+using iShop.Service.Base;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class RegisterDto: ISavedBaseDto
     {

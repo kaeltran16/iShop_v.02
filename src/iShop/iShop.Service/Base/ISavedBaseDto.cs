@@ -1,6 +1,6 @@
 ﻿namespace iShop.Service.Base
 {
-    public interface IServiceBase
+    public interface ISavedBaseDto
     {
     }
 }

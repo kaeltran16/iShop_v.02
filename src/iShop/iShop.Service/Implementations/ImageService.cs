@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
-using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
 using iShop.Common.Helpers;
@@ -11,9 +10,11 @@ using iShop.Repo.Data.Implementations;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 using iShop.Service.Commons;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace iShop.Service.Implementations
@@ -23,14 +24,16 @@ namespace iShop.Service.Implementations
         private readonly IHostingEnvironment _host;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<ImageService> _logger;
         private readonly ImageSettings _imageSettings;
         private readonly IImagesRepository _repository;
 
-        public ImageService(IHostingEnvironment host,IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<ImageSettings> imageSettings)
+        public ImageService(IHostingEnvironment host, IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<ImageSettings> imageSettings, ILogger<ImageService> logger)
         {
             _host = host;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
             _imageSettings = imageSettings.Value;
             _repository = _unitOfWork.GetRepository<IImagesRepository>();
         }
@@ -38,7 +41,8 @@ namespace iShop.Service.Implementations
         public async Task<IServiceResult> UploadAsync(string id, IFormFile file)
         {
             try
-            {   var productId = id.ToGuid();
+            {
+                var productId = id.ToGuid();
 
                 var product = await _unitOfWork.GetRepository<ProductRepository>().GetSingleAsync(productId);
                 if (product == null)
@@ -61,14 +65,17 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(product));
                 };
+                _logger.LogInformation($"Uploaded new {nameof(image)} with id: {image.Id}.");
                 var imageDto = _mapper.Map<Image, ImageDto>(image);
                 return new ServiceResult(payload: imageDto);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Uploading new image failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
-         
+
         }
 
         public async Task<IServiceResult> RemoveAsync(string id)
@@ -86,12 +93,16 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(image));
                 };
+                _logger.LogInformation($"Deleted {nameof(image)} with id: {image.Id}.");
+
                 return new ServiceResult();
             }
             catch (Exception e)
             {
+                _logger.LogError($"Deleting image with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
-            }          
+            }
         }
 
         private IServiceResult ValidateImageFile(IFormFile file)
@@ -107,10 +118,12 @@ namespace iShop.Service.Implementations
                 if (!_imageSettings.IsSupported(file.FileName))
                     throw new NotSupportException(nameof(file), Path.GetExtension(file.FileName));
 
+                _logger.LogInformation($"Validate image with name: {file.FileName} successfully.");
                 return new ServiceResult();
             }
             catch (Exception e)
             {
+                _logger.LogError($"Validate image failed. {e.Message}");
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -125,8 +138,10 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Generate image name failed. {e.Message}");
+
                 throw new Exception(e.Message);
-            }          
+            }
         }
 
         private string GenerateFolderPath(string fileName)
@@ -146,8 +161,10 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Generate image folder path failed. {e.Message}");
+
                 throw new Exception(e.Message);
-            }           
+            }
         }
 
         private async Task CopyFileToRootAsync(IFormFile file, string filePath)
@@ -161,9 +178,11 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
-               throw new Exception(e.Message);
+                _logger.LogError($"Copy image with name {file.FileName} to folder path failed. {e.Message}");
+
+                throw new Exception(e.Message);
             }
 
-        } 
+        }
     }
 }

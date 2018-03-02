@@ -37,13 +37,6 @@ namespace iShop.Repo
 
             modelBuilder.ChangeIdentityTableNames();
         }
-
-        // Will be removed in production 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.EnableSensitiveDataLogging();
-           
-        }
     }
 
 }

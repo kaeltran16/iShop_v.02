@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using iShop.Common.DTOs;
 using iShop.Common.Exceptions;
 using iShop.Common.Extensions;
 using iShop.Common.Helpers;
@@ -10,7 +9,9 @@ using iShop.Data.Entities;
 using iShop.Repo.Data.Interfaces;
 using iShop.Repo.UnitOfWork.Interfaces;
 using iShop.Service.Commons;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Service.Implementations
 {
@@ -18,11 +19,13 @@ namespace iShop.Service.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<ShippingService> _logger;
         private readonly IShippingRepository _repository;
-        public ShippingService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ShippingService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ShippingService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
             _repository = _unitOfWork.GetRepository<IShippingRepository>();
         }
 
@@ -38,11 +41,16 @@ namespace iShop.Service.Implementations
                     throw new SaveFailedException(nameof(shipping));
                 }
 
+                _logger.LogInformation(
+                    $"Added new shippng with id: {shipping.Id} for order with id: {shipping.OrderId}.");
+
                 var result = await GetSingleAsync(shipping.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Adding new shipping failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
 
@@ -63,6 +71,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting a shipping with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -80,6 +90,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
+                _logger.LogError($"Getting all shippings failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -96,12 +108,15 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(shipping));
                 }
+                _logger.LogInformation($"Updated {nameof(shipping)} with id: {shipping.Id} for order with id: {shipping.OrderId}");
 
                 var result = await GetSingleAsync(shipping.Id.ToString());
                 return new ServiceResult(payload: result.Payload);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Updating shipping with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -121,10 +136,14 @@ namespace iShop.Service.Implementations
                 {
                     throw new SaveFailedException(nameof(shipping));
                 }
+                _logger.LogInformation($"Delete {nameof(shipping)} with id: {shipping.Id}");
+
                 return new ServiceResult();
             }
             catch (Exception e)
             {
+                _logger.LogError($"Deleting shipping with id: {id} failed. {e.Message}");
+
                 return new ServiceResult(false, e.Message);
             }
         }

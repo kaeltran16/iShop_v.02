@@ -1,17 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using iShop.Common.DTOs;
-using iShop.Common.Helpers;
+﻿using iShop.Data.Entities;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
     [Route("/api/[controller]")]
-    public class SuppliersController : CrudController<ISupplierService, SupplierDto>
+    public class SuppliersController : CrudController<Supplier, SupplierDto, ISupplierService>
     {
-        public SuppliersController(ISupplierService service) : base(service)
+        public SuppliersController(ISupplierService service, ILogger<ISupplierService> logger)
+            : base(service, logger)
         {
         }
     }

@@ -9,17 +9,21 @@ using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+
 namespace iShop.Service.Implementations
 {
     public class AuthService : IAuthService
     {   
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
         public async Task<IServiceResult> Login(string username, string password)
         {
@@ -33,10 +37,13 @@ namespace iShop.Service.Implementations
                 if (!validationResult.Succeeded)
                     throw new InvalidException("Username/Password");
                 var token = GenerateToken(user);
+                _logger.LogInformation($"User with username {username} just created a new token.");
                 return new ServiceResult(payload: token);
             }
             catch (Exception e)
             {
+                _logger.LogError($"User with username {username} failed to login.", e.Message);
+
                 return new ServiceResult(false, e.Message);
             }
         }
@@ -64,7 +71,8 @@ namespace iShop.Service.Implementations
             }
             catch (Exception e)
             {
-                throw new Exception($"Some errors occured. Can not create new JWT. The error is {e.Message}");
+                _logger.LogError($"User with username {user.UserName} failed to create a new token. {e.Message}");
+                throw new Exception($"Some errors occured. Can not create new JWT. The error is {e.Message}.");
             }
 
         }

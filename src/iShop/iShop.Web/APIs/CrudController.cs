@@ -1,36 +1,47 @@
 ﻿using System.Threading.Tasks;
-using iShop.Common.Base;
 using iShop.Common.Helpers;
+using iShop.Data.Base;
 using iShop.Service.Base;
 using iShop.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
-    public abstract class CrudController<TService, TDto> : Controller
-    where TService: ICrudServiceBase<TDto>
-    where TDto: class, ISavedBaseDto
+    public abstract class CrudController<TEntity, TDto, TService> : Controller
+    where TEntity : IEntityBase
+    where TDto : ISavedBaseDto
+    where TService : ICrudServiceBase<TDto>
     {
-        private readonly TService _service;
+        private readonly ICrudServiceBase<TDto> _service;
+        private readonly ILogger<TService> _logger;
 
 
-        protected CrudController(TService service)
+        protected CrudController(TService service, ILogger<TService> logger)
         {
             _service = service;
+            _logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] TDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                _logger.LogError(
+                    $"Request creating new {typeof(TEntity).Name} failed.", ModelState.GetError());
                 return BadRequest(new ApplicationError()
                 {
                     Error = ModelState.GetError()
                 });
-                  
+            }
+
             var result = await _service.CreateAsync(dto);
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError($"Request creating new {typeof(TEntity).Name} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
+
         }
 
         [HttpGet("{id}")]
@@ -38,9 +49,12 @@ namespace iShop.Web.APIs
         {
             var result = await _service.GetSingleAsync(id);
 
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Request getting {typeof(TEntity).Name} with id: {id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
         [HttpGet]
@@ -48,9 +62,12 @@ namespace iShop.Web.APIs
         {
             var result = await _service.GetAllAsync(queryTerm);
 
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Request getting all {typeof(TEntity).Name}s failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
         [HttpPut("{id}")]
@@ -63,18 +80,24 @@ namespace iShop.Web.APIs
                 });
 
             var result = await _service.UpdateAsync(id, dto);
-            return result.IsSuccess
-                ? Ok(result.Payload)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());     
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Request updating {typeof(TEntity).Name} with id: {id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await _service.RemoveAsync(id);
-            return result.IsSuccess
-                ? Ok(id)
-                : StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());     
+            if (result.IsSuccess)
+                return Ok(result.Payload);
+
+            _logger.LogError(
+                $"Request deleting {typeof(TEntity).Name} with id: {id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
 

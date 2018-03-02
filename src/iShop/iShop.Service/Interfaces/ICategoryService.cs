@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using iShop.Common.DTOs;
-using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
 using iShop.Service.Base;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Interfaces
 {

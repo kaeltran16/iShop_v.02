@@ -39,7 +39,6 @@ namespace iShop.Web.Extensions
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
-
             return services;
         }
 

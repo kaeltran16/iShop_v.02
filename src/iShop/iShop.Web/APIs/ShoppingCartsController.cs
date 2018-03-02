@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
-using iShop.Common.DTOs;
-using iShop.Common.Helpers;
+using iShop.Data.Entities;
+using iShop.Service.DTOs;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
     [Route("/api/[controller]")]
-    public class ShoppingCartsController : CrudController<IShoppingCartService, SavedShoppingCartDto>
+    public class ShoppingCartsController : CrudController<ShoppingCart, SavedShoppingCartDto, IShoppingCartService>
     {
-        public ShoppingCartsController(IShoppingCartService service) : base(service)
+        public ShoppingCartsController(IShoppingCartService service, ILogger<IShoppingCartService> logger) 
+            : base(service, logger)
         {
         }
         

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class ShoppingCartDto
     {

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class ApplicationUserDto
     {

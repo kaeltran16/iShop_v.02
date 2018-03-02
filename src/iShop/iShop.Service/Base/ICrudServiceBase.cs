@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
-using iShop.Common.Base;
 using iShop.Common.Helpers;
 using iShop.Service.Commons;
 
 namespace iShop.Service.Base
 {
-    public interface ICrudServiceBase<in TDto>
-    where TDto: class, ISavedBaseDto
+    public interface ICrudServiceBase<in TDto> where TDto: ISavedBaseDto
     {
         Task<IServiceResult> CreateAsync(TDto dto);
         Task<IServiceResult> GetSingleAsync(string id);

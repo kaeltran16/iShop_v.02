@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using iShop.Common.DTOs;
 using iShop.Data.Entities;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Mapping
 {
@@ -13,7 +13,7 @@ namespace iShop.Service.Mapping
             CreateMap<Product, ProductDto>()
                 .ForMember(pr => pr.Categories,
                     opt => opt.MapFrom(p =>
-                        Enumerable.Select<ProductCategory, Category>(p.ProductCategories, pc => pc.Category)))
+                        p.ProductCategories.Select(pc => pc.Category)))
                 .ForMember(pr => pr.Supplier, opt => opt.MapFrom(p => p.Inventory.Supplier))
                 .ForAllMembers(opt => opt.Condition(
                     (src, des, srcMbr, desMbr) => (srcMbr != null)));

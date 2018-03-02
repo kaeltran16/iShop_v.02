@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using iShop.Common.DataAnnotations;
 
-namespace iShop.Common.DTOs
+namespace iShop.Service.DTOs
 {
     public class CartDto
     {
