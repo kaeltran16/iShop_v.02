@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using iShop.Common.DTOs;
+﻿using System.Threading.Tasks;
 using iShop.Common.Helpers;
 using iShop.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+using iShop.Web.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace iShop.Web.APIs
 {
@@ -17,68 +15,24 @@ namespace iShop.Web.APIs
     public class ImagesController : Controller
     {
         private readonly IImageService _imageService;
+        private readonly ILogger<ImagesController> _logger;
 
-        public ImagesController(IImageService imageService)
+        public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
         {
             _imageService = imageService;
+            _logger = logger;
         }
         //[Authorize(Policy = ApplicationConstants.PolicyName.SuperUsers)]
         [HttpPost]
-        public async Task<IActionResult> UpLoad(string productId, IFormFile file)
+        public async Task<IActionResult> UploadAsync(string productId, IFormFile file)
         {
-            bool isValid = Guid.TryParse(productId, out var id);
+            var result = await _imageService.UploadAsync(productId, file);
+            if (result.IsSuccess)
+                return Ok(result.Payload);
 
-            //if (!isValid)
-            //    return InvalidId(productId);
-
-            //var product = await _unitOfWork.ProductRepository.GetProduct(id, false);
-
-            //if (product == null)
-            //    return NotFound(id);
-
-            //if (file == null || file.Length == 0)
-            //    return NullOrEmpty();
-
-            //if (file.Length > _imageSettings.MaxByte)
-            //    return InvalidSize(ApplicationConstants.ControllerName.Image, _imageSettings.MaxByte);
-
-            //if (!_imageSettings.IsSupported(file.FileName))
-            //    return UnSupportedType(_imageSettings.AcceptedTypes);
-
-
-            //var uploadFolderPath = Path.Combine(_host.WebRootPath, "images");
-
-            //// Create a folder if the folder does not exist
-            //if (!Directory.Exists(uploadFolderPath))
-            //{
-            //    Directory.CreateDirectory(uploadFolderPath);
-            //}
-
-            //var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-
-            //var filePath = Path.Combine(uploadFolderPath, fileName);
-
-            //using (var stream = new FileStream(filePath, FileMode.Create))
-            //{
-            //    await file.CopyToAsync(stream);
-            //}
-
-            //var image = new Image { FileName = fileName, ProductId = id };
-            //await _unitOfWork.ImageRepository.AddAsync(image);
-
-            //if (!await _unitOfWork.CompleteAsync())
-            //{
-            //    //_logger.LogMessage(LoggingEvents.Fail,  ApplicationConstants.ControllerName.Image, image.Id);
-            //    _logger.LogInformation("");
-            //    return FailedToSave(image.Id);
-            //}
-            ////_logger.LogMessage(LoggingEvents.Created,  ApplicationConstants.ControllerName.Image, image.Id);
-            //_logger.LogInformation("");
-            //return Ok(_mapper.Map<Image, ImageDto>(image));
-            //}
-
-            var imageDto = await _imageService.Upload(id, file);
-            return Ok(imageDto);
+            _logger.LogError(
+                $"Uploading image with id: {result.Payload.Id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
 
         //[HttpGet("{productId}")]
@@ -92,31 +46,15 @@ namespace iShop.Web.APIs
         // DELETE
         //[Authorize(Policy = "SuperUsers")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
-            bool isValid = Guid.TryParse(id, out var imageId);
+            var result = await _imageService.RemoveAsync(id);
+            if (result.IsSuccess)
+                return Ok(result.Payload);
 
-            //if (!isValid)
-            //    return InvalidId(id);
-
-            //var image = await _unitOfWork.ImageRepository.Get(imageId);
-
-            //if (image == null)
-            //    return NullOrEmpty();
-
-            //_unitOfWork.ImageRepository.Remove(image);
-            //if (!await _unitOfWork.CompleteAsync())
-            //{
-            //    //_logger.LogMessage(LoggingEvents.Fail, ApplicationConstants.ControllerName.Category, image.Id);
-            //    _logger.LogInformation("");
-            //    return FailedToSave(image.Id);
-            //}
-
-            ////_logger.LogMessage(LoggingEvents.Deleted, ApplicationConstants.ControllerName.Category, image.Id);
-            //_logger.LogInformation("");
-            //return NoContent();
-            await _imageService.Remove(imageId);
-            return NoContent();
+            _logger.LogError(
+                $"Deleting image with id: {result.Payload.Id} failed. {result.Message}");
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
     }
 

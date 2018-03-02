@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Linq.Expressions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
 using iShop.Repo.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Implementations
 {
@@ -13,36 +15,31 @@ namespace iShop.Repo.Data.Implementations
 
         public ProductRepository(ApplicationDbContext context)
             : base(context)
-        {
+        { 
         }
 
-        public async Task<Product> GetProduct(Guid id, bool isIncludeRelative = true)
+        public override Func<IQueryable<Product>, IIncludableQueryable<Product, object>> CreateInclusiveRelatives()
         {
-            ISpecification<Product> spec = isIncludeRelative
-                ? new Specification<Product>(predicate: o => o.Id == id,
-                    includes: source => source
-                        .Include(p => p.ProductCategories)
-                        .ThenInclude(c => c.Category)
-                        .Include(p => p.Images)
-                        .Include(p => p.Inventory)
-                        .ThenInclude(i => i.Supplier))
-                : new Specification<Product>(predicate: o => o.Id == id, includes: null);
-            return await GetSingleAsync(spec);
+            return product => product
+                .Include(p => p.ProductCategories)
+                .ThenInclude(c => c.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Inventory)
+                .ThenInclude(i => i.Supplier);
         }
 
-        public async Task<IEnumerable<Product>> GetProducts(bool isIncludeRelative = true)
+        public override Dictionary<string, Expression<Func<Product, object>>> CreateQueryTerms()
         {
-            ISpecification<Product> spec = isIncludeRelative
-                ? new Specification<Product>(predicate: null,
-                    includes: source => source
-                        .Include(p => p.ProductCategories)
-                        .ThenInclude(c => c.Category)
-                        .Include(p => p.Images)
-                        .Include(p => p.Inventory)
-                        .ThenInclude(i => i.Supplier))
-                : new Specification<Product>(predicate: null, includes: null);
-
-            return await GetAllAsync(spec);
+            var columnMap =
+                new Dictionary<string, Expression<Func<Product, object>>>
+                {
+                    {"name", p => p.Name},
+                    {"expired", p => p.ExpiredDate},
+                    {"expire", p => p.ExpiredDate},
+                    {"stock", p => p.Inventory.Stock},
+                    {"price", p => p.Price}
+                };
+            return columnMap;
         }
     }
 }

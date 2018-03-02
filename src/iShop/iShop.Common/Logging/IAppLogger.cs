@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using iShop.Common.Helpers;
 
 namespace iShop.Common.Logging
 {
@@ -8,5 +6,6 @@ namespace iShop.Common.Logging
     {
         void LogInformation(string message, params object[] args);
         void LogWarning(string message, params object[] args);
+        void LogError(string message, params object[] args);
     }
 }

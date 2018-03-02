@@ -1,33 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Linq.Expressions;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
 using iShop.Repo.Data.Interfaces;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Implementations
 {
-    public class SupplierRepository: DataRepositoryBase<Supplier>, ISupplierRepository
+    public class SupplierRepository : DataRepositoryBase<Supplier>, ISupplierRepository
     {
-        public SupplierRepository(ApplicationDbContext context) 
+        public SupplierRepository(ApplicationDbContext context)
             : base(context)
         {
         }
 
-        public async Task<IEnumerable<Supplier>> GetSuppliers()
+        public override Func<IQueryable<Supplier>, IIncludableQueryable<Supplier, object>> CreateInclusiveRelatives()
         {
-            var spec = 
-                new Specification<Supplier>(predicate: null, includes: null);
-
-            return await GetAllAsync(spec);
+            return null;
         }
 
-        public async Task<Supplier> GetSupplier(Guid supplierId)
+        public override Dictionary<string, Expression<Func<Supplier, object>>> CreateQueryTerms()
         {
-            var spec = 
-                new Specification<Supplier>(predicate: null, includes: null);
-
-            return await GetSingleAsync(spec);
+            var columnMap =
+                new Dictionary<string, Expression<Func<Supplier, object>>>
+                {
+                    {"name", p => p.Name}
+                };
+            return columnMap;
         }
     }
 }

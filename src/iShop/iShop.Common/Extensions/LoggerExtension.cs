@@ -9,17 +9,17 @@
 //        {
 //            switch (code)
 //            {
-//                case LoggingEvents.SavedFail:
-//                    logger.LogError(LoggingEvents.Fail, itemName + " with id " + itemId + " failed to saved");
+//                case LoggingResult.SavedFail:
+//                    logger.LogError(LoggingResult.Fail, itemName + " with id " + itemId + " failed to saved");
 //                    break;
-//                case LoggingEvents.Created:
-//                    logger.LogInformation(LoggingEvents.Created, itemName + " with id " + itemId + " has been created");
+//                case LoggingResult.Created:
+//                    logger.LogInformation(LoggingResult.Created, itemName + " with id " + itemId + " has been created");
 //                    break;
-//                case LoggingEvents.Deleted:
-//                    logger.LogError(LoggingEvents.Deleted, itemName + " with id " + itemId + " has been deleted");
+//                case LoggingResult.Deleted:
+//                    logger.LogError(LoggingResult.Deleted, itemName + " with id " + itemId + " has been deleted");
 //                    break;
-//                case LoggingEvents.Updated:
-//                    logger.LogInformation(LoggingEvents.Updated, itemName + " with id " + itemId + " has been updated");
+//                case LoggingResult.Updated:
+//                    logger.LogInformation(LoggingResult.Updated, itemName + " with id " + itemId + " has been updated");
 //                    break;
 //                default: 
 //                    throw new ArgumentException("code is invalid");

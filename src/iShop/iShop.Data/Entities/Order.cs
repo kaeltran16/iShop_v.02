@@ -20,11 +20,6 @@ namespace iShop.Data.Entities
 
         public DateTime OrderedDate { get; set; } =  DateTime.Now;
 
-        public Order()
-        {
-            
-        }
-
         public void AddItem(Guid productId, int quantity)
         {
             var orderItem = OrderedItems.SingleOrDefault(o => o.ProductId == productId && o.OrderId == Id);

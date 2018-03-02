@@ -20,8 +20,8 @@ namespace iShop.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var repo = _unitOfWork.GetRepository<CategoryRepository>();
-            var category = await repo.GetCategories();
+            var repo = _unitOfWork.GetRepository<IProductRepository>();
+            var category = await repo.GetAllAsync();
             return Ok(category);
         }
 

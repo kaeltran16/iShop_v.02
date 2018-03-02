@@ -6,11 +6,8 @@ using iShop.Repo.Data.Base;
 
 namespace iShop.Repo.Data.Interfaces
 {
-    public interface IShoppingCartRepository : IDataRepository<ShoppingCart>
+    public interface IShoppingCartRepository : IDataRepository<ShoppingCart>, IQueryableRepository<ShoppingCart>
     {
-        Task<ShoppingCart> GetShoppingCart(Guid id, bool isIncludeRelative = true);
-        Task<IEnumerable<ShoppingCart>> GetShoppingCarts(bool isIncludeRelative = true);
         Task<IEnumerable<ShoppingCart>> GetUserShoppingCarts(Guid userId, bool isIncludeRelative = true);
-
     }
 }

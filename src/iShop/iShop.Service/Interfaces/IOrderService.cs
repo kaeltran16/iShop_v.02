@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using iShop.Common.DTOs;
+using iShop.Service.Base;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IOrderService
+    public interface IOrderService: ICrudServiceBase<SavedOrderDto>, IServiceBase
     {
-        Task<OrderDto> CreateAsync(SavedOrderDto orderDto);
-        Task<OrderDto> Get(Guid id);
-        Task<IEnumerable<OrderDto>> GetAll();
-        Task RemoveAsync(Guid orderId);
-        Task<OrderDto> UpdateAsync(Guid orderId, SavedOrderDto orderDto);
+        
     }
 }

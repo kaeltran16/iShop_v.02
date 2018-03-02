@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using iShop.Data.Entities;
 using iShop.Repo.Data.Base;
 using iShop.Repo.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace iShop.Repo.Data.Implementations
 {
@@ -18,44 +21,31 @@ namespace iShop.Repo.Data.Implementations
 
         public async Task<IEnumerable<ShoppingCart>> GetUserShoppingCarts(Guid userId, bool isIncludeRelative = true)
         {
-            ISpecification<ShoppingCart> spec = isIncludeRelative
-                ? new Specification<ShoppingCart>(predicate: p => p.UserId == userId,
-                    includes: source => source
-                        .Include(c => c.Carts)
-                        .ThenInclude(p => p.Product)
-                        .Include(u => u.User))
-                : new Specification<ShoppingCart>(predicate: o => o.UserId == userId,
-                    includes: null);
+            var includes = CreateInclusiveRelatives();
+            var spec = isIncludeRelative
+                ? new Specification<ShoppingCart>(p => p.UserId == userId, includes)
+                : new Specification<ShoppingCart>(o => o.UserId == userId, null);
 
-            return await GetAllAsync(spec);
+            return await Get(spec).ToListAsync();
         }
 
-        public async Task<ShoppingCart> GetShoppingCart(Guid id, bool isIncludeRelative = true)
+        public override Dictionary<string, Expression<Func<ShoppingCart, object>>> CreateQueryTerms()
         {
-            ISpecification<ShoppingCart> spec = isIncludeRelative
-                ? new Specification<ShoppingCart>(predicate: p => p.Id == id,
-                    includes: source => source
-                        .Include(c => c.Carts)
-                        .ThenInclude(p => p.Product)
-                        .Include(u => u.User))
-                : new Specification<ShoppingCart>(predicate: o => o.Id == id,
-                    includes: null);
-
-            return await GetSingleAsync(spec);
+            var columnMap =
+                new Dictionary<string, Expression<Func<ShoppingCart, object>>>
+                {
+                    {"date", p => p.PlacedDate}
+                };
+            return columnMap;
         }
 
-        public async Task<IEnumerable<ShoppingCart>> GetShoppingCarts(bool isIncludeRelative = true)
+        public override Func<IQueryable<ShoppingCart>, IIncludableQueryable<ShoppingCart, object>> CreateInclusiveRelatives()
         {
-            ISpecification<ShoppingCart> spec = isIncludeRelative
-                ? new Specification<ShoppingCart>(predicate: null,
-                    includes: source => source
-                        .Include(c => c.Carts)
-                        .ThenInclude(p => p.Product)
-                        .Include(u => u.User))
-                : new Specification<ShoppingCart>(predicate: null,
-                    includes: null);
-
-            return await GetAllAsync(spec);
+            return
+                source => source
+                    .Include(c => c.Carts)
+                    .ThenInclude(p => p.Product)
+                    .Include(u => u.User);
         }
     }
 }

@@ -14,14 +14,12 @@ namespace iShop.Repo.Helpers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        private readonly Logger _logger;
 
-        public AppInitializer(IServiceProvider services, ApplicationDbContext context, Logger logger)
+        public AppInitializer(IServiceProvider services, ApplicationDbContext context)
         {
             _roleManager = services.GetService<RoleManager<ApplicationRole>>();
             _userManager = services.GetService<UserManager<ApplicationUser>>();
             _context = context;
-            _logger = logger;
         }
 
         private async Task SeedRoles()

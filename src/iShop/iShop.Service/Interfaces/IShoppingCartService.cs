@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using iShop.Common.DTOs;
+﻿using iShop.Service.Base;
+using iShop.Service.DTOs;
 
 namespace iShop.Service.Interfaces
 {
-    public interface IShoppingCartService
+    public interface IShoppingCartService: ICrudServiceBase<SavedShoppingCartDto>, IServiceBase
     {
-        Task<ShoppingCartDto> CreateAsync(SavedShoppingCartDto shoppingCartDto);
-        Task<ShoppingCartDto> Get(Guid id);
-        Task<IEnumerable<ShoppingCartDto>> GetAll();
-        Task RemoveAsync(Guid shoppingCartId);
-        Task<ShoppingCartDto> UpdateAsync(Guid shoppingCartId, SavedShoppingCartDto shoppingCartDto);
+       
     }
 }

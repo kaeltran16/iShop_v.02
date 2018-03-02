@@ -24,7 +24,7 @@ namespace iShop.Repo
         public DbSet<Supplier> Suppliers { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            :base((DbContextOptions) options)
+            :base(options)
         {   
         }
 
@@ -36,13 +36,6 @@ namespace iShop.Repo
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ChangeIdentityTableNames();
-        }
-
-        // Will be removed in production 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.EnableSensitiveDataLogging();
-           
         }
     }
 

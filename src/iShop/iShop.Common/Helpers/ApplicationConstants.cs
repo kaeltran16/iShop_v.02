@@ -2,6 +2,13 @@
 {
     public static class ApplicationConstants
     {
+        public static class QueryTerm
+        {
+            public const int MinPage = 1;
+            public const int MaxPage = 50;
+            public const int MinPageSize = 5;
+            public const int MaxPageSize = 50;
+        }
         public static class Error
         {
             public const string NotFound = "not_found";
