@@ -28,7 +28,7 @@ namespace iShop.Web.APIs
             if (!ModelState.IsValid)
             {
                 _logger.LogError(
-                    $"Request creating new {typeof(TEntity).Name} failed.", ModelState.GetError());
+                    $"Request creating new {typeof(TEntity).Name} failed. {ModelState.GetError()}");
                 return BadRequest(new ApplicationError()
                 {
                     Error = ModelState.GetError()

@@ -26,11 +26,11 @@ namespace iShop.Web.APIs
         {
             var result = await _authService.Login(dto.Username, dto.Password);
 
-            if (result.IsSuccess) 
+            if (result.IsSuccess)
                 return Ok(result.Payload);
 
             _logger.LogError($"Request creating new token failed. {result.Message}");
-            return StatusCode(500, new ApplicationError() {Error = result.Message}.ToString());
+            return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());
         }
     }
 }
