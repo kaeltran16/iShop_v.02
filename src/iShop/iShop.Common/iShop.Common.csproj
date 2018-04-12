@@ -13,4 +13,10 @@
     <Folder Include="Base\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Microsoft.IdentityModel.Tokens">
+      <HintPath>..\..\..\..\..\..\.nuget\packages\microsoft.identitymodel.tokens\5.2.1\lib\netstandard1.4\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

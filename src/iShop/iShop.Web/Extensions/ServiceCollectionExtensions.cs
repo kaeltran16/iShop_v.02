@@ -45,6 +45,7 @@ namespace iShop.Web.Extensions
         public static IServiceCollection AddConfigureSettings(this IServiceCollection services)
         {
             services.Configure<ImageSettings>(Startup.Configuration.GetSection("ImageSettings"));
+            services.Configure<JwtTokenSettings>(Startup.Configuration.GetSection("JwtTokenSettings"));
             return services;
         }
 
@@ -104,13 +105,12 @@ namespace iShop.Web.Extensions
                 {
                     opt.RequireHttpsMetadata = false;
                     opt.Audience = tokenSettings.Audience;
-                    opt.Authority = tokenSettings.Authority;
                     opt.TokenValidationParameters = new TokenValidationParameters()
                     {
+                        ValidateLifetime = true,
+                        ValidateIssuer = true,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Key)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Key))
                     };
 
                 });

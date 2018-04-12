@@ -26,8 +26,9 @@ namespace iShop.Web.APIs
         {
             var result = await _authService.Login(dto.Username, dto.Password);
 
+            var token = new {Token = result.Payload};
             if (result.IsSuccess)
-                return Ok(result.Payload);
+                return Ok(token);
 
             _logger.LogError($"Request creating new token failed. {result.Message}");
             return StatusCode(500, new ApplicationError() { Error = result.Message }.ToString());

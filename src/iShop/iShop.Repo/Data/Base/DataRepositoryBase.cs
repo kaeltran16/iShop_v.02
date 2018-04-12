@@ -138,7 +138,7 @@ namespace iShop.Repo.Data.Base
 
         public virtual Dictionary<string, Expression<Func<T, object>>> CreateQueryTerms()
         {
-            throw new Exception("You have to override this function to sort and filter.");
+            throw new Exception("You have to override this function to SORT and FILTER.");
         }
 
         

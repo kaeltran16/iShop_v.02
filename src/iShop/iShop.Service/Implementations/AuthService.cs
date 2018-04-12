@@ -4,12 +4,14 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using iShop.Common.Exceptions;
+using iShop.Common.Helpers;
 using iShop.Data.Entities;
 using iShop.Service.Commons;
 using iShop.Service.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace iShop.Service.Implementations
 {
@@ -18,12 +20,13 @@ namespace iShop.Service.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<AuthService> _logger;
-
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<AuthService> logger)
+        private readonly JwtTokenSettings _tokenSettings;
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<AuthService> logger, IOptionsSnapshot<JwtTokenSettings> tokenSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _tokenSettings = tokenSettings.Value;
         }
         public async Task<IServiceResult> Login(string username, string password)
         {
@@ -36,7 +39,7 @@ namespace iShop.Service.Implementations
 
                 if (!validationResult.Succeeded)
                     throw new InvalidException("Username/Password");
-                var token = GenerateToken(user);
+                var token = await GenerateToken(user);
                 _logger.LogInformation($"User with username {username} just created a new token.");
                 return new ServiceResult(payload: token);
             }
@@ -48,26 +51,21 @@ namespace iShop.Service.Implementations
             }
         }
 
-        private string GenerateToken(ApplicationUser user)
+        private async Task<string> GenerateToken(ApplicationUser user)
         {
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes("This is a secret key");
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                       new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                       new Claim(ClaimTypes.Name, user.UserName)
-                    }),
-                    Expires = DateTime.Now.AddDays(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-                };
+                var jwt = new JwtSecurityToken(
+                    issuer: _tokenSettings.Issuer,
+                    audience: _tokenSettings.Audience,
+                    claims: await CreateClaims(user),
+                    notBefore: _tokenSettings.NotBefore,
+                    expires: _tokenSettings.Expiration,
+                    signingCredentials: _tokenSettings.SigningCredentials
+                    );
 
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-
-                return tokenHandler.WriteToken(token);
+                var encodedToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+                return encodedToken;
             }
             catch (Exception e)
             {
@@ -75,6 +73,19 @@ namespace iShop.Service.Implementations
                 throw new Exception($"Some errors occured. Can not create new JWT. The error is {e.Message}.");
             }
 
+        }
+
+        private async Task<Claim[]> CreateClaims(ApplicationUser user)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, await _tokenSettings.JtiGenerator()), 
+                new Claim(JwtRegisteredClaimNames.Iat, 
+                    _tokenSettings.IssuedAt.ToShortDateString() 
+                    + _tokenSettings.IssuedAt.ToShortTimeString()),            
+            };
+            return claims;
         }
     }
 }
