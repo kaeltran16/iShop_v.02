@@ -20,7 +20,7 @@ API endpoints for creating an simple ecommerce application. The API provides aut
   * ## Services
     Services for the application, DTOs and mapping
     
-  * Web
+  * ## Web
     Main container of the application, provides API settings and API endpoints
  
  # Installation
